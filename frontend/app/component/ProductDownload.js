@@ -4,6 +4,9 @@ import cookie from 'react-cookie';
 
 import GetProduct from './GetProduct';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class ProductDownload extends React.Component {
 	constructor(props){
         super(props);
@@ -27,7 +30,7 @@ class ProductDownload extends React.Component {
         }
     }
     loadProductData(token, id){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/landing/product/`+id+`/detail`, { 
+		fetch( backend.url +`/api/landing/product/`+id+`/detail`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -44,7 +47,7 @@ class ProductDownload extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/product/generatedownloadurl',
+        url: backend.url + '/api/product/generatedownloadurl',
         type: 'POST',
         data: {
             id : this.props.params.id, token : this.props.params.tokendownload

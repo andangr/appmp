@@ -2,6 +2,9 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class Logout extends React.Component {
 	constructor(props){
         super(props);
@@ -10,7 +13,8 @@ class Logout extends React.Component {
 
 	render (){
         cookie.remove('token');
-		window.location.href = 'http://172.19.16.156:8020/';
+        cookie.remove('role');
+		window.location.href = frontend.url;
 
         return null;
 	}

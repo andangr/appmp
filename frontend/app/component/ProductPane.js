@@ -3,7 +3,9 @@ import autoBind from 'react-autobind';
 
 import Menu from './Menu';
 import ProductRow from './ProductRow';
-//import Products from './Products';
+
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
 
 class ProductPane extends React.Component {
 	constructor(props){
@@ -15,7 +17,7 @@ class ProductPane extends React.Component {
         }
     }
 	loadHomeData(){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/getproductsreact`)
+		fetch( backend.url + `/home/products`)
 			.then(result=>result.json())
 			.then(products=>this.setState({products}))
 	}

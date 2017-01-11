@@ -8,6 +8,9 @@ import 'react-select2-wrapper/css/select2.css';
 import DynamicSelect from './helper/DynamicSelect';
 import Options from './helper/Options';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class DeleteProductConfirm extends React.Component {
 	constructor(props){
         super(props);
@@ -34,7 +37,7 @@ class DeleteProductConfirm extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/product/'+this.props.id,
+        url: backend.url + 'api/product/'+this.props.id,
         type: 'DELETE',
         data: {
             id:this.props.id,

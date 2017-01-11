@@ -18,7 +18,7 @@ class MenusPane extends React.Component {
     }
 
 	componentWillMount() {
-		fetch(backend.url + `/api/getproductsreact`)
+		fetch(backend.url + `/home/products`)
 			.then(result=>result.json())
 			.then(menus=>this.setState({menus}))
 	}

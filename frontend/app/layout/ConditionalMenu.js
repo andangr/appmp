@@ -5,6 +5,9 @@ import cookie from 'react-cookie';
 import MenusPane from '../component/MenusPane';
 import AdminMenuPane from '../component/AdminMenuPane';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class ConditionalMenu extends React.Component {
 	constructor(props){
         super(props);
@@ -20,7 +23,7 @@ class ConditionalMenu extends React.Component {
 
     }
     getDataUser(token){
-        fetch(`http://172.19.16.156:8000/api/getuserdetails`, { 
+        fetch(backend.url + `/api/getuserdetails`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }

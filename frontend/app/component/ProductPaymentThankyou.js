@@ -66,7 +66,7 @@ class ProductPaymentThankyou extends React.Component {
             var idPrd = this.state.id;
             var paymentTkn = this.state.paymentToken;
             setTimeout(function(){ 
-                window.location.href = 'http://172.19.16.156:8020/#/product/download/'+idPrd+'/'+paymentTkn; 
+                window.location.href = frontend.url + '/#/product/download/'+idPrd+'/'+paymentTkn; 
             }, 5000);
             return (
                         <div className="widget style1 navy-bg">
