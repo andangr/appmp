@@ -123,7 +123,7 @@ class EditProduct extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/product/'+this.props.id,
+        url: backend.url + '/api/product/'+this.props.id,
         type: 'PUT',
         data: {
             product_name : this.state.product_name,

@@ -53,6 +53,9 @@ Route::get('/usercontroller/path',[
    'middleware' => 'First',
    'uses' => 'UserController@showPath'
 ]);
+Route::group(['middleware' => 'cors'], function(){
+    Route::get('home/products', 'Api\ApiHomeController@getHome');
+});
 
 Route::group(['middleware' => 'cors' ,'prefix' => 'api'], function () {
     Route::post('auth/token', 'Api\ApiLoginController@authenticate');
@@ -61,22 +64,23 @@ Route::group(['middleware' => 'cors' ,'prefix' => 'api'], function () {
 
 Route::group(['middleware' => ['cors','auth:api'] ,'prefix' => 'api'], function () {
     Route::get('getuserdetails', 'UserController@getUserDetails');
+
+    
     Route::resource('voucher', 'VoucherapiController');
     Route::resource('product', 'Api\ApiProductController');
     Route::get('product/details/{id}', 'Api\ApiProductController@details');
-    Route::resource('category', 'Api\ApiCategoryController');
-    Route::resource('paymentmethod', 'Api\ApiPaymentMethodController');
-
-    Route::resource('payment', 'PaymentPaypalController');
-    Route::post('payment', 'PaymentPaypalController@create');
-
-    Route::post('product/testt', 'Api\ApiProductDownloadController@testt');
-
     Route::post('product/generatedownloadurl', 'Api\ApiProductDownloadController@generateDownloadUrl');
     
-    Route::post('sumarypayment', 'PaymentPaypalController@createSumaryAction');
+    Route::resource('category', 'Api\ApiCategoryController');
     Route::resource('subcategory', 'Api\ApiSubCategoryController');
     Route::get('subcategory/getbycatid/{id}', 'Api\ApiSubCategoryController@getByCatId');
+    
+
+    Route::resource('paymentmethod', 'Api\ApiPaymentMethodController');
+    Route::resource('payment', 'PaymentPaypalController');
+    Route::post('payment', 'PaymentPaypalController@create');
+    Route::post('sumarypayment', 'PaymentPaypalController@createSumaryAction');
+
 
 });
 
@@ -87,4 +91,3 @@ Route::get('paymentpaypal/callback', 'PaymentPaypalController@paymentResponse');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');
-

@@ -9,7 +9,8 @@
         "laravel/framework": "5.3.*",
         "barryvdh/laravel-cors": "^0.8.2",
         "laravel/passport": "^1.0",
-        "anouar/paypalpayment": "~1.0"
+        "anouar/paypalpayment": "~1.0",
+        "spatie/laravel-tail": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -49,5 +50,6 @@
     },
     "config": {
         "preferred-install": "dist"
-    }
+    },
+    "repositories": [ { "type": "composer", "url": "https://packagist.org" }, { "packagist": false } ]
 }

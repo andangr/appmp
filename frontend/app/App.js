@@ -9,6 +9,9 @@ import MenusPane from './component/MenusPane';
 import ProductPane from './component/ProductPane';
 import ChatAdmin from './component/ChatAdmin';
 
+import backend from './configs/backend';
+import frontend from './configs/frontend';
+
 
 class App extends React.Component {
 	constructor (props) {
@@ -24,7 +27,7 @@ class App extends React.Component {
 			}
 	}
 	componentWillMount(){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/getproductsreact`)
+		fetch(backend.url + `/home/products`)
 			.then(result=>result.json())
 			.then(items=>this.setState({items}))
 	}

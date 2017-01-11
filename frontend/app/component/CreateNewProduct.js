@@ -108,7 +108,7 @@ class CreateNewProduct extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/product',
+        url: backend.url +'/api/product', 
         type: 'POST',
         data: {
             product_name : this.state.product_name,

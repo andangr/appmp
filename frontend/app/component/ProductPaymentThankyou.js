@@ -4,6 +4,10 @@ import cookie from 'react-cookie';
 
 import GetProduct from './GetProduct';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
+
 class ProductPaymentThankyou extends React.Component {
 	constructor(props){
         super(props);
@@ -30,7 +34,7 @@ class ProductPaymentThankyou extends React.Component {
         }
     }
     loadProductData(token, id){
-		fetch(`http://172.19.16.156:8000/api/product/details/`+id, { 
+		fetch(backend.url + `/api/product/details/`+id, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -62,7 +66,7 @@ class ProductPaymentThankyou extends React.Component {
             var idPrd = this.state.id;
             var paymentTkn = this.state.paymentToken;
             setTimeout(function(){ 
-                window.location.href = 'http://172.19.16.156:8020/#/product/download/'+idPrd+'/'+paymentTkn; 
+                window.location.href = frontend.url + '/#/product/download/'+idPrd+'/'+paymentTkn; 
             }, 5000);
             return (
                         <div className="widget style1 navy-bg">
