@@ -5,6 +5,9 @@ import cookie from 'react-cookie';
 import ProductRow from './ProductRow';
 //import Products from './Products';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class RegisterPane extends React.Component {
 	constructor(props){
         super(props);
@@ -22,7 +25,7 @@ class RegisterPane extends React.Component {
     _create () {
         
         return $.ajax({
-        url: 'http://172.19.16.156:8011/app_dev.php/api/register',
+        url: backend.url + '/api/register',
         type: 'POST',
         data: {
             username : this.state.username,
@@ -54,7 +57,7 @@ class RegisterPane extends React.Component {
         console.log(data);
         console.log("success");
         cookie.save('token', data.token);
-        window.location.href = 'http://172.19.16.156:8020/';
+        window.location.href = frontend.url;
         // show success message
     }
     _onError (data) {
