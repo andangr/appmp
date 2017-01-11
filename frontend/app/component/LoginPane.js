@@ -5,6 +5,9 @@ import cookie from 'react-cookie';
 import ProductRow from './ProductRow';
 //import Products from './Products';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class LoginPane extends React.Component {
 	constructor(props){
         super(props);
@@ -21,7 +24,7 @@ class LoginPane extends React.Component {
     _create () {
         
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/auth/token',
+        url: backend.url + '/api/auth/token',
         type: 'POST',
         data: {
             username: this.state.user,
@@ -53,7 +56,7 @@ class LoginPane extends React.Component {
         console.log("success");
         cookie.save('token', data.access_token);
         
-        window.location.href = 'http://172.19.16.156:8020/';
+        window.location.href = frontend.url;
         // show success message
     }
     _onError (data) {
