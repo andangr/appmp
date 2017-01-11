@@ -27,7 +27,7 @@ class App extends React.Component {
 			}
 	}
 	componentWillMount(){
-		fetch(backend.url + `/api/getproductsreact`)
+		fetch(backend.url + `/home/products`)
 			.then(result=>result.json())
 			.then(items=>this.setState({items}))
 	}
