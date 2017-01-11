@@ -5,6 +5,9 @@ import cookie from 'react-cookie';
 import MyOrdersRow from './MyOrdersRow';
 import TopUp from './TopUp';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class MyRoomPane extends React.Component {
 	constructor(props){
         super(props);
@@ -16,7 +19,7 @@ class MyRoomPane extends React.Component {
         }
     }
     loadBalanceData(token){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/getbalance`, { 
+		fetch(backend.url + `/api/getbalance`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -26,7 +29,7 @@ class MyRoomPane extends React.Component {
         
 	}
 	loadOrdersData(token){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/myorders`, { 
+		fetch(backend.url + `/api/myorders`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }

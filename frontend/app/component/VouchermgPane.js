@@ -6,6 +6,9 @@ import VoucherRow from './VoucherRow';
 import VoucherNew from './VoucherNew';
 import TopUp from './TopUp';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class VouchermgPane extends React.Component {
 	constructor(props){
         super(props);
@@ -17,7 +20,7 @@ class VouchermgPane extends React.Component {
         }
     }
     loadVouchersData(token){
-		fetch(`http://172.19.16.156:8000/api/voucher`, { 
+		fetch(backend.url + `/api/voucher`, { 
                 headers: {
                     'Accept' : 'application/json',
                     'Authorization': 'Bearer '+token

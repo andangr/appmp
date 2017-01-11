@@ -9,6 +9,8 @@ import NeedLoginDialog from './NeedLoginDialog';
 import RegisterPane from './RegisterPane';
 import RadioOptions from './helper/RadioOptions';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
 
 
 class GetProduct extends React.Component {
@@ -61,7 +63,7 @@ class GetProduct extends React.Component {
         this.setState({ showModal: true });
     }
     loadPaymentMethod(token){
-		fetch(`http://172.19.16.156:8000/api/paymentmethod`, { 
+		fetch(backend.url + `/api/paymentmethod`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -86,11 +88,11 @@ class GetProduct extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/sumarypayment', 
+        url: backend.url + '/api/sumarypayment', 
         type: 'POST',
         data: {
             id : this.props.details.id,
-            return_url : 'http://172.19.16.156:8020/#/payment/thankyou/'+this.props.details.id,
+            return_url : frontend.url + '/#/payment/thankyou/'+this.props.details.id,
             pm_code : this.state.paymentcode,
             target : '01',
             vouchercode : this.state.vouchercode

@@ -4,6 +4,10 @@ import cookie from 'react-cookie';
 
 import GetProduct from './GetProduct';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
+
 class PaymentConfirmationPane extends React.Component {
 	constructor(props){
         super(props);
@@ -29,7 +33,7 @@ class PaymentConfirmationPane extends React.Component {
         }
     }
     loadProductData(token, id){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/landing/product/`+id+`/detail`, { 
+		fetch(backend.url + `/api/landing/product/`+id+`/detail`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -47,11 +51,11 @@ class PaymentConfirmationPane extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/payment/create',
+        url: backend.url + '/api/payment/create',
         type: 'get',
         data: {
             id : this.state.product_id,
-            return_url : 'http://172.19.16.156:8020/#/payment/thankyou/'+this.state.product_id,
+            return_url : frontend.url + '/#/payment/thankyou/'+this.state.product_id,
             pm_code : this.state.paymentcode,
             target : '01',
             vouchercode : this.state.vouchercode
