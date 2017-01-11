@@ -55,6 +55,7 @@ Route::get('/usercontroller/path',[
 ]);
 Route::group(['middleware' => 'cors'], function(){
     Route::get('home/products', 'Api\ApiHomeController@getHome');
+    Route::get('home/category/{id}/{page}', 'Api\ApiHomeController@getCategoryProducts');
 });
 
 Route::group(['middleware' => 'cors' ,'prefix' => 'api'], function () {
