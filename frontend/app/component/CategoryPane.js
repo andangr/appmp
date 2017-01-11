@@ -16,7 +16,7 @@ class CategoryPane extends React.Component {
         }
     }
 	loadData(catid){
-		fetch(backend.url + `/api/landing/category/`+catid+`/0`)
+		fetch(backend.url + `/home/category/`+catid+`/0`)
 			.then(result=>result.json())
 			.then(products=>this.setState({products}))
 	}
