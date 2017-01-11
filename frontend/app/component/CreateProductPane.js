@@ -6,6 +6,9 @@ import { Button, Modal } from 'react-bootstrap';
 import ProductListRow from './ProductListRow';
 import CreateNewProduct from './CreateNewProduct';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class CreateProductPane extends React.Component {
 	constructor(props){
         super(props);
@@ -38,7 +41,7 @@ class CreateProductPane extends React.Component {
         this.setState({ showModal: true });
     }
 	loadOrdersData(token){
-		fetch(`http://172.19.16.156:8000/api/product`, { 
+		fetch(backend.url + `/api/product`, { 
                 headers: {
                     'Accept' : 'application/json',
                     'Authorization': 'Bearer '+token

@@ -4,6 +4,9 @@ import autoBind from 'react-autobind';
 import { Link } from 'react-router';
 import Menu from './Menu';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class MenusPane extends React.Component {
 	constructor(props){
         super(props);
@@ -15,7 +18,7 @@ class MenusPane extends React.Component {
     }
 
 	componentWillMount() {
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/getproductsreact`)
+		fetch(backend.url + `/api/getproductsreact`)
 			.then(result=>result.json())
 			.then(menus=>this.setState({menus}))
 	}

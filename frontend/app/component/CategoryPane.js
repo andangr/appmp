@@ -3,7 +3,8 @@ import autoBind from 'react-autobind';
 
 import Menu from './Menu';
 import ProductRow from './ProductRow';
-//import Products from './Products';
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
 
 class CategoryPane extends React.Component {
 	constructor(props){
@@ -15,7 +16,7 @@ class CategoryPane extends React.Component {
         }
     }
 	loadData(catid){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/landing/category/`+catid+`/0`)
+		fetch(backend.url + `/api/landing/category/`+catid+`/0`)
 			.then(result=>result.json())
 			.then(products=>this.setState({products}))
 	}
@@ -39,7 +40,7 @@ class CategoryPane extends React.Component {
 		return (
              <div>
 			 		<header className ="jumbotron hero-spacer">
-						<img className = "hero-spacer img" src={'http://172.19.16.156:8010/uploads/images/banner-diskon-web-1.png'} alt="" />
+						<img className = "hero-spacer img" src={frontend.url + '/uploads/images/banner-diskon-web-1.png'} alt="" />
 						
 					</header>
 					{Object.keys(this.state.products).map(this.renderList)}

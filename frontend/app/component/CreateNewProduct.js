@@ -8,6 +8,9 @@ import 'react-select2-wrapper/css/select2.css';
 import DynamicSelect from './helper/DynamicSelect';
 import Options from './helper/Options';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
 class CreateNewProduct extends React.Component {
 	constructor(props){
         super(props);
@@ -57,7 +60,7 @@ class CreateNewProduct extends React.Component {
         //console.log('option changed to '+this.state.sub_category_id);
     }
     loadCategoryOptions(token){
-		fetch(`http://172.19.16.156:8000/api/category/`, { 
+		fetch(backend.url + `/api/category/`, { 
                 headers: {
                     'Authorization': 'Bearer '+token 
                 }
@@ -68,7 +71,7 @@ class CreateNewProduct extends React.Component {
         
 	}
     loadSubcategoryOptions(token, cat){
-		fetch(`http://172.19.16.156:8000/api/subcategory/getbycatid/`+cat, { 
+		fetch(backend.url + `/api/subcategory/getbycatid/`+cat, { 
                 headers: {
                     'Authorization': 'Bearer '+token 
                 }

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server"
+    "start": "webpack-dev-server --hot --inline --colors --progress"
   },
   "author": "",
   "license": "ISC",
@@ -18,13 +18,15 @@
     "react-autobind": "^1.0.6",
     "react-block-ui": "^0.2.2",
     "react-bootstrap": "^0.30.7",
+    "react-cookie": "^1.0.4",
     "react-dom": "^15.4.1",
     "react-dropzone": "^3.7.3",
     "react-measure": "^1.4.4",
     "react-router": "^2.4.0",
     "react-select2-wrapper": "^1.0.4-beta2",
     "react-toggle-switch": "^2.1.2",
-    "restify": "^4.0.4"
+    "restify": "^4.0.4",
+    "socket.io-client": "^1.7.2"
   },
   "devDependencies": {
     "babel-core": "^6.8.0",

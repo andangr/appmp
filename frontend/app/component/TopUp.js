@@ -9,7 +9,8 @@ import NeedLoginDialog from './NeedLoginDialog';
 import RegisterPane from './RegisterPane';
 import RadioOptions from './helper/RadioOptions';
 
-
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
 
 class TopUp extends React.Component {
     
@@ -51,7 +52,7 @@ class TopUp extends React.Component {
         this.setState({ showModal: true });
     }
     loadPaymentMethod(token){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/getpaymenttopup`, { 
+		fetch(backend.url + `/api/getpaymenttopup`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -61,7 +62,7 @@ class TopUp extends React.Component {
         
 	}
     loadVoucherTopUp(token){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/getvouchertopup`, { 
+		fetch(backend.url + `/api/getvouchertopup`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -71,7 +72,7 @@ class TopUp extends React.Component {
         
 	}
     loadBalanceData(token){
-		fetch(`http://172.19.16.156:8011/app_dev.php/api/getbalance`, { 
+		fetch(backend.url + `/api/getbalance`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -111,11 +112,11 @@ class TopUp extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8011/app_dev.php/api/createpayment',
+        url: backend.url + '/api/createpayment',
         type: 'POST',
         data: {
             id : this.state.vouchercode,
-            return_url : 'http://172.19.16.156:8020/#/myroom',
+            return_url : frontend.url + '/#/myroom',
             pm_code : this.state.paymentcode,
             target : '02',
             vouchercode : ''

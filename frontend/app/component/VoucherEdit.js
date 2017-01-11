@@ -8,6 +8,10 @@ import 'react-select2-wrapper/css/select2.css';
 import DynamicSelect from './helper/DynamicSelect';
 import Options from './helper/Options';
 
+import backend from '../configs/backend';
+import frontend from '../configs/frontend';
+
+
 class VoucherEdit extends React.Component {
 	constructor(props){
         super(props);
@@ -40,7 +44,7 @@ class VoucherEdit extends React.Component {
         
     }
     loadCategoryOptions(token){
-		fetch(`http://172.19.16.156:8000/api/voucher/`+this.props.id+`/edit`, { 
+		fetch(backend.url + `/api/voucher/`+this.props.id+`/edit`, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -59,7 +63,7 @@ class VoucherEdit extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/voucher/'+this.props.id,
+        url: backend.url + '/api/voucher/'+this.props.id,
         type: 'PUT',
         data: {
             vouchercode : this.state.code,
