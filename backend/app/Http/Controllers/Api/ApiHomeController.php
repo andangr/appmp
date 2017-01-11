@@ -34,18 +34,28 @@ class ApiHomeController extends Controller
         }
 
         return $categories;
+    }
 
-        $products = Product::all();
-        $data = array();
-        $i=0;
+    /**
+     * Show all products in specific category.
+     * 
+     * @return Response
+     */
+    public function getCategoryProducts($id, $page = 0){
 
-        if($products){
+        $subcategories = SubCategory::where('category_id', $id)->get();
+
+        foreach($subcategories as $subcategory){
+
+            $products = Product::where('sub_category_id', $subcategory->id)->get();
             foreach($products as $product){
-                $data[$i]['product'] = $product;
-                $data[$i]['images'] = $product->images;
-                $i++;
+                $images = $product->images;
+                $positions = $product->positions;
+                //$subcategory =  $product->subcategory;
             }
+            $subcategory->products = $products;
         }
-        return $products;
+
+        return $subcategories;
     }
 }
