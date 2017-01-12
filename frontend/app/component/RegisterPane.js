@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import strategy from 'react-validatorjs-strategy';
@@ -20,7 +21,7 @@ class RegisterPane extends React.Component {
         this.validatorTypes = strategy.createSchema(
             // First parameter is a list of rules for each element name
             {
-                username: 'required',
+                name: 'required',
                 email: 'required|email',
                 password: 'required|min:6'
             },
@@ -30,7 +31,7 @@ class RegisterPane extends React.Component {
             
         );
         this.state = {
-            username : "", email: "", password: "",
+            name : "", email: "", password: "",
             loading: false, 
             errors: {},
             alert_show: false,
@@ -54,7 +55,7 @@ class RegisterPane extends React.Component {
         url: backend.url + '/api/auth/register', 
         type: 'POST',
         data: {
-            name : this.state.username,
+            name : this.state.name,
             password: this.state.password,
             password_confirmation : this.state.password,
             email: this.state.email
@@ -84,7 +85,6 @@ class RegisterPane extends React.Component {
     _onSuccess (data) {
         console.log(data);
         console.log("success");
-        cookie.save('token', data.token);
         if(data.code == 200){
             this.setState({
                 alert_show: true,
@@ -134,6 +134,9 @@ class RegisterPane extends React.Component {
             return <ul className="errors">{messages}</ul>;
         }
     }
+    getClassName(field) {
+        return this.props.isValid(field) ? '' : 'has-error';
+    }
 
 	render (){
 		return (
@@ -145,18 +148,18 @@ class RegisterPane extends React.Component {
                         <h3>Register to One Stop Clicking</h3>
                     </div>
                     <form className="m-t" ref="registerForm" onSubmit={this._onSubmit}>
-                        <div className="form-group">
+                        <div className={this.getClassName('email') + " form-group"}  >
                             <input 
                                 type="text" 
                                 onChange={this._onChange} 
-                                id="username" name="username" 
+                                id="name" name="name" 
                                 className="form-control" 
                                 placeholder="Name" 
-                                onBlur={this.props.handleValidation('username')}
+                                onBlur={this.props.handleValidation('name')}
                             />
-                            {this.renderErrors(this.props.getValidationMessages('username'))}
+                            {this.renderErrors(this.props.getValidationMessages('name'))}
                         </div>
-                        <div className="form-group">
+                        <div className={this.getClassName('email') + " form-group"}  >
                             <input 
                                 type="email" 
                                 onChange={this._onChange} 
@@ -167,7 +170,7 @@ class RegisterPane extends React.Component {
                             />
                             {this.renderErrors(this.props.getValidationMessages('email'))}
                         </div>
-                        <div className="form-group">
+                        <div className={this.getClassName('password') + " form-group"}  >
                             <input 
                                 type="password" 
                                 onChange={this._onChange} 
@@ -179,11 +182,14 @@ class RegisterPane extends React.Component {
                             />
                             {this.renderErrors(this.props.getValidationMessages('password'))}
                         </div>
+                        <div className="form-group">
+                            
+                        </div>
                         
                         <button type="submit" className="btn btn-success block full-width m-b">Register</button>
 
                         <p className="text-muted text-center"><small>Already have an account?</small></p>
-                        <a className="btn btn-sm btn-white btn-block" >Login</a>
+                        <Link className="btn btn-sm btn-white btn-block" to={'/login'}>Login</Link>
                     </form>
                 </div>
             </div>
