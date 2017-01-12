@@ -25,6 +25,8 @@
     "react-router": "^2.4.0",
     "react-select2-wrapper": "^1.0.4-beta2",
     "react-toggle-switch": "^2.1.2",
+    "react-validation-mixin": "^5.4.0",
+    "react-validatorjs-strategy": "^0.2.1",
     "restify": "^4.0.4",
     "socket.io-client": "^1.7.2",
     "sweetalert-react": "^0.4.6"
