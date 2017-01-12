@@ -26,7 +26,8 @@
     "react-select2-wrapper": "^1.0.4-beta2",
     "react-toggle-switch": "^2.1.2",
     "restify": "^4.0.4",
-    "socket.io-client": "^1.7.2"
+    "socket.io-client": "^1.7.2",
+    "sweetalert-react": "^0.4.6"
   },
   "devDependencies": {
     "babel-core": "^6.8.0",
