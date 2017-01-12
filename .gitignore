@@ -6,5 +6,4 @@ Homestead.json
 Homestead.yaml
 .env
 /frontend/node_modules
-/chat/node_modules/
-
+/chat/node_modules
