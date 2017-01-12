@@ -8,9 +8,11 @@ import { Link } from 'react-router';
 import NeedLoginDialog from './NeedLoginDialog';
 import RegisterPane from './RegisterPane';
 
+import chatserver from '../configs/chatserver';
+
 import io from 'socket.io-client'
 
-let socket = io(`172.19.16.156:3000`);
+let socket = io(chatserver);
 
 
 class ChatPane extends React.Component {
@@ -26,7 +28,6 @@ class ChatPane extends React.Component {
             userid: "admin",
             messages:[]
         }
-        
         this.updateChat = this.updateChat.bind(this);
         this.sendToSocket = this.sendToSocket.bind(this);
         
