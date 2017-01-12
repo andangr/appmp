@@ -120,8 +120,8 @@ class LoginPane extends React.Component {
     renderErrors(messages) {
         if (messages.length) {
             console.log(messages);
-            messages = messages.map((message) => <li className="">{message}</li>);
-            return <ul className="errors">{messages}</ul>;
+            messages = messages.map((message, i) => <li key={i} className="">{message}</li>);
+            return <ul className="errors">{messages}</ul>; 
         }
     }
 

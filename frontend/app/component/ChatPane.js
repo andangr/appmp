@@ -28,7 +28,6 @@ class ChatPane extends React.Component {
             userid: "admin",
             messages:[]
         }
-        
         this.updateChat = this.updateChat.bind(this);
         this.sendToSocket = this.sendToSocket.bind(this);
         
