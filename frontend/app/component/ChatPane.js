@@ -10,7 +10,7 @@ import RegisterPane from './RegisterPane';
 
 import io from 'socket.io-client'
 
-let socket = io(`localhost:3000`);
+let socket = io(`172.19.16.156:3000`);
 
 
 class ChatPane extends React.Component {

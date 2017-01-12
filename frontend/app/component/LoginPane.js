@@ -72,13 +72,14 @@ class LoginPane extends React.Component {
     }
     _onSubmit(e) {
         e.preventDefault();
+        var login = this;
         this.props.validate()
         this.props.validate(function (error) {
             if (!error) {
-                var xhr = this._create();
-                xhr.done(this._onSuccess)
-                    .fail(this._onError)
-                    .always(this.hideLoading)
+                var xhr = login._create();
+                xhr.done(login._onSuccess)
+                    .fail(login._onError)
+                    .always(login.hideLoading)
             }
         });
 
