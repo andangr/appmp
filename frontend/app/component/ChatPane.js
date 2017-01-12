@@ -12,7 +12,7 @@ import chatserver from '../configs/chatserver';
 
 import io from 'socket.io-client'
 
-let socket = io(chatserver);
+let socket = io(chatserver.url);
 
 
 class ChatPane extends React.Component {
@@ -28,6 +28,7 @@ class ChatPane extends React.Component {
             userid: "admin",
             messages:[]
         }
+        
         this.updateChat = this.updateChat.bind(this);
         this.sendToSocket = this.sendToSocket.bind(this);
         
