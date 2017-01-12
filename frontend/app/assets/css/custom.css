@@ -1,0 +1,10 @@
+ul.errors {
+    font-size: 10px;
+    padding-left: 0px;
+    color: red;
+}
+
+ul.errors li {
+    list-style: none;
+    margin-left: 0;
+}
