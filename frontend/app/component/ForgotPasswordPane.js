@@ -73,6 +73,24 @@ class ForgotPasswordPane extends React.Component {
         console.log(data);
         console.log('success');
 
+        if (data.error) {
+            this.setState({
+                alert_show: true,
+                alert_title: 'Error',
+                alert_type: 'error',
+                alert_confirm_button: true,
+                alert_message: data.message
+            });
+        } else {
+            this.setState({
+                alert_show: true,
+                alert_title: 'Success',
+                alert_type: 'info',
+                alert_confirm_button: true,
+                alert_message: data.message
+            });
+        }
+
         // window.location.href = frontend.url;
     }
 
