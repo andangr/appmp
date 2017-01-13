@@ -6,8 +6,6 @@ import SweetAlert from 'sweetalert-react';
 import validation from 'react-validation-mixin';
 import strategy from 'react-validatorjs-strategy';
 
-import ProductRow from './ProductRow';
-
 import backend from '../configs/backend';
 import frontend from '../configs/frontend';
 
@@ -20,32 +18,25 @@ class LoginPane extends React.Component {
         autoBind(this);
 
         this.state = {
-            user: "",
-            email: "",
-            password: "",
+            user: '',
+            email: '',
+            password: '',
             loading: false,
             alert_show: false,
-            alert_title: "",
-            alert_message: "",
-            alert_type: "info",
+            alert_title: '',
+            alert_message: '',
+            alert_type: 'info',
             alert_confirm_button: true,
             errors: {}
-        }
+        };
 
         this.validatorTypes = strategy.createSchema(
-            // First parameter is a list of rules for each element name
             {
                 user: 'required|email',
                 password: 'required'
             },
-            // Second parameter is optional and is a list of custom error messages for elements
             {
-                "required.user": "Without an :attribute we can't reach you!"
-            },
-            // Third parameter is also optional; a callback that takes the validator instance created
-            // and can be used to call methods on it. This is run at the point of validation.
-            function (validator) {
-
+                'required.user': 'Without an :attribute we can\'t reach you!'
             }
         );
     }
@@ -53,10 +44,10 @@ class LoginPane extends React.Component {
     _create() {
         this.setState({
             alert_show: true,
-            alert_title: "Logging In",
-            alert_type: "info",
+            alert_title: 'Logging In',
+            alert_type: 'info',
             alert_confirm_button: false,
-            alert_message: "Please Wait . . ."
+            alert_message: 'Please Wait . . .'
         });
         return $.ajax({
             url: backend.url + '/api/auth/token',
@@ -66,14 +57,19 @@ class LoginPane extends React.Component {
                 password: this.state.password
             },
             beforeSend: function () {
-                this.setState({ alert_show: true, alert_title: "Loggin In", alert_message: "Please wait . . ." });
+                this.setState({
+                    alert_show: true,
+                    alert_title: 'Loggin In',
+                    alert_message: 'Please wait . . .'
+                });
             }.bind(this)
-        })
+        });
     }
+
     _onSubmit(e) {
         e.preventDefault();
         var login = this;
-        this.props.validate()
+        this.props.validate();
         this.props.validate(function (error) {
             if (!error) {
                 var xhr = login._create();
@@ -84,25 +80,28 @@ class LoginPane extends React.Component {
         });
 
     }
+
     _onSuccess(data) {
         console.log(data);
-        console.log("success");
+        console.log('success');
         cookie.save('token', data.access_token);
 
         window.location.href = frontend.url;
     }
+
     _onError(data) {
         var response = data.responseJSON;
         console.log(response.error);
         console.log(response.message);
         this.setState({
             alert_show: true,
-            alert_title: "Error",
-            alert_type: "error",
+            alert_title: 'Error',
+            alert_type: 'error',
             alert_confirm_button: true,
             alert_message: response.message
         });
     }
+    
     _onChange(e) {
         var state = {};
         state[e.target.name] = $.trim(e.target.value);
@@ -121,7 +120,7 @@ class LoginPane extends React.Component {
         if (messages.length) {
             console.log(messages);
             messages = messages.map((message, i) => <li key={i} className="">{message}</li>);
-            return <ul className="errors">{messages}</ul>; 
+            return <ul className="errors">{messages}</ul>;
         }
     }
 
@@ -136,7 +135,7 @@ class LoginPane extends React.Component {
                             <h3>Login to One Stop Clicking</h3>
                         </div>
                         <form ref='login_form' onSubmit={this._onSubmit}>
-                            <div className={this.getClassName('user') + " form-group"}>
+                            <div className={this.getClassName('user') + ' form-group'}>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -148,7 +147,7 @@ class LoginPane extends React.Component {
                                 {this.renderErrors(this.props.getValidationMessages('user'))}
                             </div>
 
-                            <div className={this.getClassName('password') + " form-group"}  >
+                            <div className={this.getClassName('password') + ' form-group'}  >
                                 <input
                                     type="password"
                                     className=" form-control"
@@ -183,9 +182,9 @@ class LoginPane extends React.Component {
                     onOutsideClick={() => this.setState({ alert_show: false })}
                     />
             </div >
-        )
+        );
     }
-};
+}
 
 LoginPane = validation(strategy)(LoginPane);
 
