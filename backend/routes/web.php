@@ -60,6 +60,7 @@ Route::group(['middleware' => 'cors'], function () {
 Route::group(['middleware' => 'cors', 'prefix' => 'api'], function () {
     Route::post('auth/token', 'Api\ApiLoginController@authenticate');
     Route::post('auth/register', 'Api\ApiRegisterController@register');
+    Route::post('auth/reset', 'Api\ApiResetPasswordController@resetPwd');
     Route::post('auth/refresh', 'Api\ApiLoginController@refreshToken');
 });
 Route::get('register/test', 'Api\ApiRegisterController@test');
