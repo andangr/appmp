@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
 import autoBind from 'react-autobind';
-import cookie from 'react-cookie';
 import SweetAlert from 'sweetalert-react';
 import validation from 'react-validation-mixin';
 import strategy from 'react-validatorjs-strategy';
@@ -11,17 +10,13 @@ import frontend from '../configs/frontend';
 
 import 'sweetalert/dist/sweetalert.css';
 
-
-class LoginPane extends React.Component {
+class ForgotPasswordPane extends React.Component {
     constructor(props) {
         super(props);
         autoBind(this);
 
         this.state = {
-            user: '',
             email: '',
-            password: '',
-            loading: false,
             alert_show: false,
             alert_title: '',
             alert_message: '',
@@ -32,38 +27,12 @@ class LoginPane extends React.Component {
 
         this.validatorTypes = strategy.createSchema(
             {
-                user: 'required|email',
-                password: 'required'
+                email: 'required|email'
             },
             {
-                'required.user': 'Without an :attribute we can\'t reach you!'
+                'required.email': 'Without an :attribute we can\'t check whether you have account!'
             }
         );
-    }
-
-    _create() {
-        this.setState({
-            alert_show: true,
-            alert_title: 'Logging In',
-            alert_type: 'info',
-            alert_confirm_button: false,
-            alert_message: 'Please Wait . . .'
-        });
-        return $.ajax({
-            url: backend.url + '/api/auth/token',
-            type: 'POST',
-            data: {
-                username: this.state.user,
-                password: this.state.password
-            },
-            beforeSend: function () {
-                this.setState({
-                    alert_show: true,
-                    alert_title: 'Loggin In',
-                    alert_message: 'Please wait . . .'
-                });
-            }.bind(this)
-        });
     }
 
     _onSubmit(e) {
@@ -81,12 +50,48 @@ class LoginPane extends React.Component {
 
     }
 
+    _create() {
+        return $.ajax({
+            url: backend.url + '/api/forgot_password',
+            type: 'POST',
+            data: {
+                email: this.state.email
+            },
+            beforeSend: function () {
+                this.setState({
+                    alert_show: true,
+                    alert_title: 'Sending your request',
+                    alert_type: 'info',
+                    alert_confirm_button: false,
+                    alert_message: 'Please Wait . . .'
+                });
+            }.bind(this)
+        });
+    }
+
     _onSuccess(data) {
         console.log(data);
         console.log('success');
-        cookie.save('token', data.access_token);
 
-        window.location.href = frontend.url;
+        if (data.error) {
+            this.setState({
+                alert_show: true,
+                alert_title: 'Error',
+                alert_type: 'error',
+                alert_confirm_button: true,
+                alert_message: data.message
+            });
+        } else {
+            this.setState({
+                alert_show: true,
+                alert_title: 'Success',
+                alert_type: 'info',
+                alert_confirm_button: true,
+                alert_message: data.message
+            });
+        }
+
+        // window.location.href = frontend.url;
     }
 
     _onError(data) {
@@ -101,7 +106,7 @@ class LoginPane extends React.Component {
             alert_message: response.message
         });
     }
-    
+
     _onChange(e) {
         var state = {};
         state[e.target.name] = $.trim(e.target.value);
@@ -123,7 +128,6 @@ class LoginPane extends React.Component {
         }
     }
 
-
     render() {
         return (
             <div className="ibox-content">
@@ -131,43 +135,28 @@ class LoginPane extends React.Component {
 
                     <div className="col-md-4 col-md-offset-4">
                         <div className="row text-center">
-                            <h3>Login to One Stop Clicking</h3>
+                            <h3>Forgot Password</h3>
                         </div>
-                        <form ref='login_form' onSubmit={this._onSubmit}>
-                            <div className={this.getClassName('user') + ' form-group'}>
+                        <form ref='forgot_form' onSubmit={this._onSubmit}>
+                            <div className={this.getClassName('email') + ' form-group'}>
                                 <input
-                                    type="text"
+                                    type="email"
                                     className="form-control"
                                     onChange={this._onChange}
-                                    id="user"
-                                    name="user"
+                                    name="email"
                                     placeholder="Email"
-                                    onBlur={this.props.handleValidation('user')} />
+                                    onBlur={this.props.handleValidation('email')} />
 
-                                {this.renderErrors(this.props.getValidationMessages('user'))}
+                                {this.renderErrors(this.props.getValidationMessages('email'))}
                             </div>
 
-                            <div className={this.getClassName('password') + ' form-group'}  >
-                                <input
-                                    type="password"
-                                    className=" form-control"
-                                    onChange={this._onChange}
-                                    id="password"
-                                    name="password"
-                                    placeholder="Password"
-                                    onBlur={this.props.handleValidation('password')} />
-
-                                {this.renderErrors(this.props.getValidationMessages('password'))}
-                            </div>
-
-                            <button className="btn btn-success block full-width m-b">Login</button>
+                            <button className="btn btn-success block full-width m-b">Send the request</button>
                             <br />
-                            <Link className="" to={'/forgot_password'}>Forgot password?</Link>
 
                             <p className="text-muted text-center">
-                                <small>Do not have an account?</small>
+                                <small>Already remember your password?</small>
                             </p>
-                            <Link className="btn btn-sm btn-white btn-block" to={'/register'}>Create an account </Link>
+                            <Link className="btn btn-sm btn-white btn-block" to={'/login'}>Login </Link>
                         </form>
                     </div>
                 </div>
@@ -180,11 +169,11 @@ class LoginPane extends React.Component {
                     onConfirm={() => this.setState({ alert_show: false })}
                     onOutsideClick={() => this.setState({ alert_show: false })}
                     />
-            </div >
+            </div>
         );
     }
 }
 
-LoginPane = validation(strategy)(LoginPane);
+ForgotPasswordPane = validation(strategy)(ForgotPasswordPane);
 
-export default LoginPane;
+export default ForgotPasswordPane;

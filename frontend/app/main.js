@@ -16,6 +16,7 @@ import PaymentConfirmationPane from './component/PaymentConfirmationPane';
 import ProductDownload from './component/ProductDownload';
 import ProductPaymentThankyou from './component/ProductPaymentThankyou';
 import VouchermgPane from './component/VouchermgPane';
+import ForgotPasswordPane from './component/ForgotPasswordPane';
  
 ReactDOM.render((
 	<Router history={hashHistory} >
@@ -25,6 +26,7 @@ ReactDOM.render((
 			<Route path="/details/:productid" component={ProductDetailsPane}></Route>
 			<Route path="/login" component={LoginPane}></Route>
 			<Route path="/logout" component={Logout}></Route>
+            <Route path="/forgot_password" component={ForgotPasswordPane}></Route>
 			<Route path="/myroom" component={MyRoomPane}></Route>
 			<Route path="/register" component={RegisterPane}></Route>
 			<Route path="/createproduct" component={CreateProductPane}></Route>
