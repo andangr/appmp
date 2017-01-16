@@ -22,7 +22,7 @@ class ResetPasswordPane extends React.Component {
             // First parameter is a list of rules for each element name
             {
                 email: 'required|email',
-                password: 'required|min:6'
+                password: 'required|confirmed|min:6'
             },
             {
                 "required.email": "Email is required to be your login username!"
@@ -166,6 +166,18 @@ class ResetPasswordPane extends React.Component {
                                 name="password" 
                                 className="form-control" 
                                 placeholder="Password"  
+                                onBlur={this.props.handleValidation('password')} 
+                            />
+                            {this.renderErrors(this.props.getValidationMessages('password'))}
+                        </div>
+                        <div className={this.getClassName('password') + " form-group"}  >
+                            <input 
+                                type="password" 
+                                onChange={this._onChange} 
+                                id="password_confirmation" 
+                                name="password_confirmation" 
+                                className="form-control" 
+                                placeholder="Password Confirmation"  
                                 onBlur={this.props.handleValidation('password')} 
                             />
                             {this.renderErrors(this.props.getValidationMessages('password'))}
