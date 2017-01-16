@@ -29,7 +29,7 @@ class ForgotPassword extends Mailable {
      * @return $this
      */
     public function build() {
-        $reset_link = config('frontend.url') . '/reset_password?token=' . $this->token;
+        $reset_link = config('frontend.url') . '/#/reset_password?token=' . $this->token;
         return $this->view('emails.auth.forgot_password')
             ->with('user', $this->user)
             ->with('reset_link', $reset_link);
