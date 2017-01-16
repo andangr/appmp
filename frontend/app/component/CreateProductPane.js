@@ -2,7 +2,7 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
-
+import Pagination from "react-js-pagination";
 import ProductListRow from './ProductListRow';
 import CreateNewProduct from './CreateNewProduct';
 
@@ -15,21 +15,9 @@ class CreateProductPane extends React.Component {
         autoBind(this);
 
         this.state = {
-            "product_name" : '',
-            "package_code": '',
-            "price": '',
-            "category_id": 0,
-            "sub_category_id": 0,
-            "description": '',
-            "compatibility" : '',
-            "urldownload": '',
-            "status":'',
-            "images":'',
-            "imagePreviewUrl": '',
-            fileformat: '',
-            "showModal": false,
-            "balance": {},
-            "products": {}
+            showModal: false,
+            balance: {},
+            data: {}
         }
         
     }
@@ -40,15 +28,15 @@ class CreateProductPane extends React.Component {
     open() {
         this.setState({ showModal: true });
     }
-	loadOrdersData(token){
-		fetch(backend.url + `/api/product`, { 
+	loadOrdersData(token, pageNumber){
+		fetch(backend.url + `/api/product?page=`+pageNumber, { 
                 headers: {
                     'Accept' : 'application/json',
                     'Authorization': 'Bearer '+token
                 }
             })
 			.then(result=>result.json())
-			.then(products=>this.setState({products}))
+			.then(resp=>this.setState(resp))
         
 	}
     componentWillMount() {
@@ -57,40 +45,41 @@ class CreateProductPane extends React.Component {
 	}
     
     renderTable (key){
-		return <ProductListRow details={this.state.products[key]} key={this.state.products[key].id} />
+		return <ProductListRow details={this.state.data[key]} key={this.state.data[key].id} />
 	}
-    
+
+    handlePageChange(pageNumber) {
+        console.log(`active page is ${pageNumber}`);
+        var token = cookie.load('token');
+		this.loadOrdersData(token, pageNumber);
+        this.setState({activePage: pageNumber});
+    }
     
 	render (){
-        
+        console.log(this.state);
+       
 		return (
-            <div>            
+            <div> 
                 <div className="row wrapper border-bottom white-bg page-heading">
                     <div className="col-lg-10">
                         <h2>Product Management</h2>
-                        
                     </div>
                     <div className="col-lg-2">
-
                     </div>
                 </div>
                 <div className="wrapper wrapper-content animated fadeInRight">
-
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="ibox float-e-margins">
                                 <div className="ibox-title text-center">
-                                    <h3><i className="fa fa-pencil"></i> Products List </h3>
-                                    
+                                    <h3><i className="fa fa-pencil"></i> Products List</h3>
                                 </div>
                                 <div className="ibox-content animated fadeInRight">
                                     <CreateNewProduct />
                                     <div className="table-responsive">
-                                        <table className="table table-striped">
+                                        <table id="data" className="table table-striped">
                                             <thead>
                                             <tr>
-
-                                                
                                                 <th>ID</th>
                                                 <th>Product Name</th>
                                                 <th>Description</th>
@@ -102,14 +91,20 @@ class CreateProductPane extends React.Component {
                                             </tr>
                                             </thead>
                                             <tbody>
-                                                {Object.keys(this.state.products).map(this.renderTable)}
+                                                {Object.keys(this.state.data).map(this.renderTable)}
                                             </tbody>
+                                            
                                         </table>
+                                        <Pagination
+                                            activePage={this.state.activePage}
+                                            itemsCountPerPage={this.state.per_page}
+                                            totalItemsCount={this.state.total}
+                                            pageRangeDisplayed={5}
+                                            onChange={this.handlePageChange}
+                                        />
                                     </div>
-
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>

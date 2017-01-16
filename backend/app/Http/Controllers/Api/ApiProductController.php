@@ -22,7 +22,7 @@ class ApiProductController extends Controller
      */
     public function index(){
 
-        $products = Product::all();
+        $products = Product::orderBy('id', 'asc')->paginate(10);;
         $data = array();
         $i=0;
 

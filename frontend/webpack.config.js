@@ -12,6 +12,11 @@ module.exports = {
 	module: {
 		loaders: [
 			{
+				test: /\.jsx?$/,
+				exclude: /node_modules/,
+				loader: 'react-hot!babel'
+			},
+			{
 				test: /\.js$/,
 				exclude: /node_modules/,
 				loader: 'babel',
@@ -26,6 +31,14 @@ module.exports = {
 			{
 				test: /\.css$/, 
 				loader: "style-loader!css-loader" 
+			},
+			{
+				test: /\.less$/,
+				use: [
+				'style-loader',
+				{ loader: 'css-loader', options: { importLoaders: 1 } },
+				'less-loader'
+				]
 			},
 			{ 
 				test: /\.png$/, 
