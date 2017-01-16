@@ -85,7 +85,7 @@ class ForgotPasswordPane extends React.Component {
             this.setState({
                 alert_show: true,
                 alert_title: 'Success',
-                alert_type: 'info',
+                alert_type: 'success',
                 alert_confirm_button: true,
                 alert_message: data.message
             });

@@ -7,20 +7,18 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use onestopcore\User;
 
-class ForgotPassword extends Mailable {
+class ResetNotification extends Mailable {
     use Queueable, SerializesModels;
 
     protected $user;
-    protected $token;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $user, $token) {
+    public function __construct(User $user) {
         $this->user = $user;
-        $this->token = $token;
     }
 
     /**
@@ -29,9 +27,8 @@ class ForgotPassword extends Mailable {
      * @return $this
      */
     public function build() {
-        $reset_link = config('frontend.url') . '/#/reset_password?token=' . $this->token;
-        return $this->view('emails.auth.forgot_password')
+        return $this->view('emails.auth.reset_password_notification')
             ->with('user', $this->user)
-            ->with('reset_link', $reset_link);
+            ->with('homepage', config('frontend.url'));
     }
 }

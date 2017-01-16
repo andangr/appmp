@@ -6,7 +6,10 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use onestopcore\Mail\ResetNotification;
+use onestopcore\User;
 
 use onestopcore\Http\Controllers\Controller;
 
@@ -31,6 +34,7 @@ class ApiResetPasswordController extends Controller
     public function resetPwd(Request $request)
     {
         $this->validate($request, $this->fieldRules(), $this->validationErrorMessages());
+        $user = User::where('email', '=', $request->email)->first();
 
         $response = $this->broker()->reset(
             $this->credentials($request), function ($user, $password) {
@@ -38,10 +42,15 @@ class ApiResetPasswordController extends Controller
             }
         );
 
+        if(Password::PASSWORD_RESET){
+            $this->sendResetNotificationEmail($user);
+            $response = $this->sendSuccessResponse("Your password successfully reset.");
+        }else{
+            $response = $this->sendFailedResponse($request, $response);
+        }
         
-        return $response == Password::PASSWORD_RESET
-                    ? $this->sendSuccessResponse($response)
-                    : $this->sendFailedResponse($request, $response);
+
+        return $response; 
     }
 
     /**
@@ -77,7 +86,6 @@ class ApiResetPasswordController extends Controller
      *
      * @param  \Illuminate\Http\Request
      * @param  string  $response
-     * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendFailedResponse(Request $request, $response)
     {
@@ -85,6 +93,10 @@ class ApiResetPasswordController extends Controller
                  'code' => 200,
                  'error' => true,
                  'message' => json_encode(trans($response))]);
+    }
+
+    public function sendResetNotificationEmail(User $user) {
+        Mail::to($user)->send(new ResetNotification($user));
     }
 
 }
