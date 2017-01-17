@@ -7,7 +7,7 @@ import VoucherRow from './VoucherRow';
 import VoucherNew from './VoucherNew';
 import Pagination from 'react-js-pagination';
 
-import backend from '../configs/backend';
+import backend from '../../configs/backend';
 
 class VouchermgPane extends React.Component {
     constructor(props) {
@@ -52,7 +52,6 @@ class VouchermgPane extends React.Component {
         return (<VoucherRow details={this.state.vouchers[key]} key={this.state.vouchers[key].id} />);
     }
     render() {
-        console.log(this.state);
         return (
             <div>
                 <div className="row wrapper border-bottom white-bg page-heading">
