@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^0.15.3",
     "botbuilder": "^0.9.2",
     "express": "^4.13.4",
     "joi": "^10.1.0",
@@ -20,6 +21,7 @@
     "react-autobind": "^1.0.6",
     "react-block-ui": "^0.2.2",
     "react-bootstrap": "^0.30.7",
+    "react-bootstrap-date-picker": "^4.0.0",
     "react-cookie": "^1.0.4",
     "react-dom": "^15.4.1",
     "react-dropzone": "^3.7.3",
