@@ -5,11 +5,11 @@ import { Button, Modal } from 'react-bootstrap';
 import Select2 from 'react-select2-wrapper';
 import 'react-select2-wrapper/css/select2.css';
 
-import DynamicSelect from './helper/DynamicSelect';
-import Options from './helper/Options';
+import DynamicSelect from '../helper/DynamicSelect';
+import Options from '../helper/Options';
 
-import backend from '../configs/backend';
-import frontend from '../configs/frontend';
+import backend from '../../configs/backend';
+import frontend from '../../configs/frontend';
 
 class DeleteProductConfirm extends React.Component {
 	constructor(props){

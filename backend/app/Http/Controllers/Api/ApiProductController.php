@@ -33,7 +33,12 @@ class ApiProductController extends Controller
                 $i++;
             }
         }
-        return $products;
+        
+        return response()->json([
+                 'code' => 200,
+                 'error' => false,
+                 'message' => 'Get Product Successful',
+                 'data' => $products]);;
     }
 
     /**
