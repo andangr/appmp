@@ -170,6 +170,7 @@ return [
          */
         Laravel\Passport\PassportServiceProvider::class,
         Spatie\Tail\TailServiceProvider::class,
+        Spatie\Fractal\FractalServiceProvider::class,
         //
 
         /*
@@ -229,6 +230,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Paypalpayment' => Anouar\Paypalpayment\Facades\PaypalPayment::class,
+        'Fractal' => Spatie\Fractal\FractalFacade::class,
 
     ],
 

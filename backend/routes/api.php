@@ -17,4 +17,8 @@ return $request->user();
 
 Route::group(['middleware' => ['cors'], 'namespace' => 'Api'], function () {
     Route::post('forgot_password', 'Sessions\ApiForgotPasswordController@forgotPassword')->name('forgot_password');
+
+    Route::group(['middleware' => ['auth:api']], function () {
+        Route::resource('vouchers', 'ApiVouchersController', ['except' => ['create', 'edit']]);
+    });
 });

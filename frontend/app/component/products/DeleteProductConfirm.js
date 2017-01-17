@@ -5,13 +5,13 @@ import { Button, Modal } from 'react-bootstrap';
 import Select2 from 'react-select2-wrapper';
 import 'react-select2-wrapper/css/select2.css';
 
-import DynamicSelect from './helper/DynamicSelect';
-import Options from './helper/Options';
+import DynamicSelect from '../helper/DynamicSelect';
+import Options from '../helper/Options';
 
-import backend from '../configs/backend';
-import frontend from '../configs/frontend';
+import backend from '../../configs/backend';
+import frontend from '../../configs/frontend';
 
-class VoucherDeleteConfirm extends React.Component {
+class DeleteProductConfirm extends React.Component {
 	constructor(props){
         super(props);
         autoBind(this);
@@ -37,8 +37,11 @@ class VoucherDeleteConfirm extends React.Component {
     _create () {
         var token = cookie.load('token');
         return $.ajax({
-        url: backend.url + '/api/voucher/'+this.props.id,
+        url: backend.url + 'api/product/'+this.props.id,
         type: 'DELETE',
+        data: {
+            id:this.props.id,
+        },
         beforeSend: function (xhr) {
             xhr.setRequestHeader ("Authorization", "Bearer " + token);
             this.setState({loading: true});
@@ -82,11 +85,11 @@ class VoucherDeleteConfirm extends React.Component {
                 </div>
                 <Modal bsSize="small" aria-labelledby="contained-modal-title-lg" show={this.state.showModal} onHide={this.close}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Delete Voucher</Modal.Title>
+                        <Modal.Title>Delete Product</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <div className="row text-center">
-                            <p>Are you sure to delete this voucher ? </p>
+                            <p>Are you sure to delete this product ? </p>
                             <br/>
                         </div>
                     </Modal.Body>
@@ -100,4 +103,4 @@ class VoucherDeleteConfirm extends React.Component {
 	}
 };
 
-export default VoucherDeleteConfirm;
+export default DeleteProductConfirm;

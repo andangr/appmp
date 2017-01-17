@@ -22,7 +22,7 @@ class ApiProductController extends Controller
      */
     public function index(){
 
-        $products = Product::all();
+        $products = Product::orderBy('id', 'asc')->paginate(10);;
         $data = array();
         $i=0;
 
@@ -33,7 +33,12 @@ class ApiProductController extends Controller
                 $i++;
             }
         }
-        return $products;
+        
+        return response()->json([
+                 'code' => 200,
+                 'error' => false,
+                 'message' => 'Get Product Successful',
+                 'data' => $products]);;
     }
 
     /**

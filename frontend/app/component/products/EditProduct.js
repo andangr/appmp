@@ -5,11 +5,11 @@ import { Button, Modal } from 'react-bootstrap';
 import Select2 from 'react-select2-wrapper';
 import 'react-select2-wrapper/css/select2.css';
 
-import DynamicSelect from './helper/DynamicSelect';
-import Options from './helper/Options';
+import DynamicSelect from '../helper/DynamicSelect';
+import Options from '../helper/Options';
 
-import backend from '../configs/backend';
-import frontend from '../configs/frontend';
+import backend from '../../configs/backend';
+import frontend from '../../configs/frontend';
 
 class EditProduct extends React.Component {
 	constructor(props){
@@ -93,7 +93,6 @@ class EditProduct extends React.Component {
         var token = cookie.load('token');
         
         this.setState(this.props.details);
-        console.log(this.props.details.id);
         this.setState({imagePreviewUrl :this.props.details.images[0].image_url});
         //console.log(this.props.details);
         //this.loadCategoryOptions(token);
