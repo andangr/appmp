@@ -16,7 +16,7 @@ import ProductDetailsPane from './component/ProductDetailsPane';
 import PaymentConfirmationPane from './component/PaymentConfirmationPane';
 import ProductDownload from './component/ProductDownload';
 import ProductPaymentThankyou from './component/ProductPaymentThankyou';
-import VouchermgPane from './component/VouchermgPane';
+import VouchermgPane from './component/vouchers/VouchermgPane';
 import ForgotPasswordPane from './component/ForgotPasswordPane';
  
 ReactDOM.render((

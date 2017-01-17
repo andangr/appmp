@@ -2,103 +2,72 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
-import DatePicker from 'react-bootstrap-date-picker';
+import 'react-select2-wrapper/css/select2.css';
 
-import Options from './helper/Options';
+import backend from '../../configs/backend';
 
-import backend from '../configs/backend';
 
-import 'sweetalert/dist/sweetalert.css';
-
-class VoucherNew extends React.Component {
+class VoucherEdit extends React.Component {
     constructor(props) {
         super(props);
         autoBind(this);
 
         this.state = {
-            voucher: {
-                code: '',
-                name: '',
-                disc: 0,
-                max_claim: 1,
-                start_date: {
-                    value: new Date().toISOString(),
-                    formattedValue: ''
-                },
-                end_date: {
-                    value: new Date().toISOString(),
-                    formattedValue: ''
-                },
-                status: false,
-            },
+            vouchercode: '',
+            vouchername: '',
+            disc: 0,
+            maxclaim: 1,
+            startdate: '',
+            enddate: '',
+            status: false,
             showModal: false,
-            product: {},
-            categoriesdata: {
-                data: {}
-            },
-            subcategoriesdata: {
+            voucher: {
                 data: {}
             },
             selectedOption: 0
         };
-
-        this._handleImageChange = this._handleImageChange.bind(this);
-        this._onSubmit = this._onSubmit.bind(this);
     }
 
     close() {
         this.setState({ showModal: false });
     }
     open() {
-        this.setState({ showModal: true });
-    }
-    optionCategoryChange(e) {
-        this.setState({ category_id: e.target.value });
-        console.log('option changed to ' + this.state.category_id);
+
         var token = cookie.load('token');
-        this.loadSubcategoryOptions(token, e.target.value);
+        console.log('id ' + this.props.id);
+        this.setState({ showModal: true });
+
     }
-    optionSubCategoryChange(e) {
-        this.setState({ sub_category_id: e.target.value });
-        //console.log('option changed to '+this.state.sub_category_id);
+    loadCategoryOptions(token) {
+        fetch(backend.url + '/api/voucher/' + this.props.id + '/edit', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(result => result.json())
+            .then(voucher => this.setState({ voucher }))
+        //console.log(result)
+        this.setState(this.state.voucher.data);
     }
     componentWillMount() {
-        var token = cookie.load('token');
-        console.log(token);
-    }
-
-    _handleImageChange(e) {
-        e.preventDefault();
-
-        let reader = new FileReader();
-        let file = e.target.files[0];
-        let filename = e.target.value;
-        let fileformat = filename.split('.').pop();
-        //console.log('filename : '+filename+' format : '+fileformat);
-        reader.onloadend = () => {
-            this.setState({
-                images: reader.result, //file,
-                imagePreviewUrl: reader.result,
-                fileformat: fileformat
-            });
-        };
-
-        reader.readAsDataURL(file);
+        //var token = cookie.load('token');
+        //this.loadCategoryOptions(token);
+        this.setState(this.props.details);
 
     }
     _create() {
         var token = cookie.load('token');
         return $.ajax({
-            url: backend.url + '/api/voucher/create',
-            type: 'GET',
+            url: backend.url + '/api/voucher/' + this.props.id,
+            type: 'PUT',
             data: {
-                vouchercode: this.state.voucher.code,
-                vouchername: this.state.voucher.name,
-                disc: this.statevoucher.disc,
-                maxclaim: this.state.voucher.max_claim,
-                startdate: this.state.voucher.start_date,
-                enddate: this.state.voucher.end_date,
-                status: this.state.voucher.status
+                vouchercode: this.state.code,
+                vouchername: this.state.name,
+                disc: this.state.disc,
+                maxclaim: this.state.maxclaim,
+                startdate: this.state.startdate,
+                enddate: this.state.enddate,
+                status: this.state.is_active
             },
             beforeSend: function (xhr) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + token);
@@ -108,7 +77,7 @@ class VoucherNew extends React.Component {
     }
     _onSubmit(e) {
         e.preventDefault();
-        console.log(this.state);
+        //console.log(this.state.images);
         var xhr = this._create();
         xhr.done(this._onSuccess)
             .fail(this._onError)
@@ -127,61 +96,47 @@ class VoucherNew extends React.Component {
         if (res.message) {
             message = data.responseJSON.message;
         }
-        console.log(message);
         if (res.errors) {
             this.setState({
                 errors: res.errors
             });
         }
     }
+
     _onChange(e) {
-        let newVoucher = this.state.voucher;
-        newVoucher[e.target.name] = $.trim(e.target.value);
-        this.setState({ voucher: newVoucher });
-    }
-
-    _onStartPickerChange(value, formattedValue) {
-        let newVoucher = this.state.voucher;
-        let newStartDate = this.state.voucher.start_date;
-        newStartDate['value'] = value;
-        newStartDate['formattedValue'] = formattedValue;
-        newVoucher['start_date'] = newStartDate;
-        this.setState(newVoucher);
-    }
-
-    _onEndPickerChange(value, formattedValue) {
-        let newVoucher = this.state.voucher;
-        let newEndDate = this.state.voucher.end_date;
-        newEndDate['value'] = value;
-        newEndDate['formattedValue'] = formattedValue;
-        newVoucher['end_date'] = newEndDate;
-        this.setState(newVoucher);
+        var state = {};
+        state[e.target.name] = $.trim(e.target.value);
+        console.log(state);
+        this.setState(state);
     }
 
     render() {
+
         return (
             <div className="row">
                 <div className="col-sm-12">
-                    <button className="btn btn-success btn-sm pull-right" onClick={this.open} >
-                        <i className="fa fa-plus"></i> New
-                    </button>
+                    <a className=" pull-right"
+                        onClick={this.open} >
+                        <i className="fa fa-pencil"></i></a>
                 </div>
                 <Modal aria-labelledby="contained-modal-title-lg" show={this.state.showModal} onHide={this.close}>
                     <Modal.Header closeButton>
-                        <Modal.Title>New Voucher</Modal.Title>
+                        <Modal.Title>Edit Voucher</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <div className="row text-center">
-                            <h3>Create New Voucher</h3>
+                            <h3>Edit Voucher Details</h3>
                             <br />
                         </div>
                         <form role="form" className="css-form" >
 
+                            <input type="hidden" name="id" value={this.props.id} />
                             <div className="col-lg-12" >
                                 <div className="form-group ">
                                     <label className="  control-label">Voucher Code </label>
                                     <div >
-                                        <input type="text" name="vouchercode" onChange={this._onChange}
+                                        <input type="text" name="code"
+                                            value={this.state.code} onChange={this._onChange}
                                             placeholder="CODE01" className="form-control" />
                                     </div>
                                 </div>
@@ -190,7 +145,8 @@ class VoucherNew extends React.Component {
                                 <div className="form-group ">
                                     <label className="  control-label">Voucher Name </label>
                                     <div>
-                                        <input type="text" name="vouchername" onChange={this._onChange}
+                                        <input type="text" name="name"
+                                            value={this.state.name} onChange={this._onChange}
                                             placeholder="Voucher Name" className="form-control" />
                                     </div>
                                 </div>
@@ -199,7 +155,8 @@ class VoucherNew extends React.Component {
                                 <div className="form-group ">
                                     <label className="  control-label">Disc in % </label>
                                     <div>
-                                        <input type="number" name="disc" onChange={this._onChange}
+                                        <input type="number" name="disc"
+                                            value={this.state.disc} onChange={this._onChange}
                                             placeholder="10" className="form-control" />
                                     </div>
                                 </div>
@@ -208,7 +165,8 @@ class VoucherNew extends React.Component {
                                 <div className="form-group ">
                                     <label className=" control-label">Max Claim </label>
                                     <div  >
-                                        <input type="number" onChange={this._onChange}
+                                        <input type="number"
+                                            value={this.state.maxclaim} onChange={this._onChange}
                                             name="maxclaim" placeholder="1" className="form-control" />
                                     </div>
                                 </div>
@@ -216,31 +174,34 @@ class VoucherNew extends React.Component {
 
                             <div className="form-group col-lg-6" id="startdate">
                                 <label className="font-normal">Start date</label>
-                                <DatePicker id="start_date"
-                                    name="start_date"
-                                    value={this.state.voucher.start_date.value}
-                                    onChange={this._onStartPickerChange}
-                                    />
 
+                                <div className="input-group date">
+                                    <input type="datetime" value="" name="startdate"
+                                        value={this.state.startdate} onChange={this._onChange}
+                                        className="form-control" />
+                                    <span className="input-group-addon"><i className="fa fa-calendar"></i></span>
+                                </div>
                             </div>
                             <div className="form-group col-lg-6" id="enddate">
                                 <label className="font-normal">End date</label>
 
-                                <DatePicker id="end_date"
-                                    name="end_date"
-                                    value={this.state.voucher.end_date.value}
-                                    onChange={this._onEndPickerChange}
-                                    />
+                                <div className="input-group date">
+                                    <input type="datetime" value="" name="enddate"
+                                        value={this.state.enddate} onChange={this._onChange}
+                                        className="form-control" />
+                                    <span className="input-group-addon"><i className="fa fa-calendar"></i></span>
+                                </div>
                             </div>
+
 
                             <div className="form-group ">
                                 <label className="font-normal">Status</label>
-
                                 <div className="switch">
                                     <div className="onoffswitch">
-                                        <input type="checkbox" name="status" onChange={this._onChange}
-                                            className="onoffswitch-checkbox" id="status" />
-                                        <label className="onoffswitch-label" htmlFor="status" >
+                                        <input type="checkbox" name="is_active"
+                                            onChange={this._onChange}
+                                            className="onoffswitch-checkbox" checked={this.state.is_active} id="status" />
+                                        <label className="onoffswitch-label" htmlFor="status">
                                             <span className="onoffswitch-inner"></span>
                                             <span className="onoffswitch-switch"></span>
                                         </label>
@@ -261,5 +222,7 @@ class VoucherNew extends React.Component {
         );
     }
 }
+//<input type="number" className="form-control" onChange={this._onChange} 
+//id="category_id" name="category_id" placeholder="category_id" required="" />
 
-export default VoucherNew;
+export default VoucherEdit;
