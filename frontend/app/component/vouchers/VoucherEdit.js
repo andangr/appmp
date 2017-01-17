@@ -2,9 +2,16 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
-import 'react-select2-wrapper/css/select2.css';
+import DatePicker from 'react-bootstrap-date-picker';
+import SweetAlert from 'sweetalert-react';
+import axios from 'axios';
+import validation from 'react-validation-mixin';
+import strategy from 'react-validatorjs-strategy';
+
 
 import backend from '../../configs/backend';
+
+import 'sweetalert/dist/sweetalert.css';
 
 
 class VoucherEdit extends React.Component {
@@ -13,101 +20,181 @@ class VoucherEdit extends React.Component {
         autoBind(this);
 
         this.state = {
-            vouchercode: '',
-            vouchername: '',
-            disc: 0,
-            maxclaim: 1,
-            startdate: '',
-            enddate: '',
-            status: false,
-            showModal: false,
             voucher: {
-                data: {}
+                code: '',
+                name: '',
+                disc: 0,
+                max_claim: 1,
+                start_date: {
+                    value: new Date().toISOString(),
+                    formattedValue: ''
+                },
+                end_date: {
+                    value: new Date().toISOString(),
+                    formattedValue: ''
+                },
+                is_active: false,
             },
-            selectedOption: 0
+            swal: {
+                show: false,
+                title: '',
+                message: '',
+                type: 'info',
+                confirm_button: true,
+            },
+            showModal: false,
         };
+
+        this.validatorTypes = strategy.createSchema(
+            {
+                code: 'required',
+                name: 'required',
+                disc: 'required',
+                max_claim: 'required',
+            },
+            {
+
+            }
+        );
     }
 
     close() {
         this.setState({ showModal: false });
     }
     open() {
-
-        var token = cookie.load('token');
-        console.log('id ' + this.props.id);
         this.setState({ showModal: true });
 
     }
-    loadCategoryOptions(token) {
-        fetch(backend.url + '/api/voucher/' + this.props.id + '/edit', {
-            headers: {
-                'Authorization': 'Bearer ' + token
+
+    _submitHandler(e) {
+        e.preventDefault();
+        this.props.validate(error => {
+            if (!error) {
+                this.updateVoucher();
             }
-        })
-            .then(result => result.json())
-            .then(voucher => this.setState({ voucher }))
-        //console.log(result)
-        this.setState(this.state.voucher.data);
+        });
+
     }
+    
     componentWillMount() {
         //var token = cookie.load('token');
         //this.loadCategoryOptions(token);
-        this.setState(this.props.details);
+        let voucher = this.props.details;
+        voucher.start_date = {
+            value : voucher.start_date,
+            formattedValue : voucher.start_date
+        };
+        voucher.end_date = {
+            value : voucher.end_date,
+            formattedValue : voucher.end_date
+        };
+        this.setState({voucher : voucher});
+        console.log(voucher);
 
     }
-    _create() {
+
+    updateVoucher() {
+        this.setState({
+            swal: {
+                show: true,
+                title: 'Please wait...',
+                text: 'We are saving your data',
+                type: 'info',
+                confirm_button: false,
+            }
+        });
         var token = cookie.load('token');
-        return $.ajax({
-            url: backend.url + '/api/voucher/' + this.props.id,
-            type: 'PUT',
-            data: {
-                vouchercode: this.state.code,
-                vouchername: this.state.name,
-                disc: this.state.disc,
-                maxclaim: this.state.maxclaim,
-                startdate: this.state.startdate,
-                enddate: this.state.enddate,
-                status: this.state.is_active
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-                this.setState({ loading: true });
-            }.bind(this)
+        axios.create({
+            baseURL: backend.url,
+            timeout: 1000,
+            headers: {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + token
+            }
+        }).put('/api/vouchers/' + this.props.id, {
+            code: this.state.voucher.code,
+            name: this.state.voucher.name,
+            disc: this.state.voucher.disc,
+            max_claim: this.state.voucher.max_claim,
+            start_date: this.state.voucher.start_date.value,
+            end_date: this.state.voucher.end_date.value,
+            is_active: this.state.voucher.is_active
+        }).then(response => {
+            let swal = this.state.swal;
+            if (response.data.error) {
+                swal.title = 'Gagal';
+                swal.type = 'error';
+            } else {
+                swal.title = 'Berhasil';
+                swal.type = 'success';
+                swal.confirm_button = true;
+            }
+            swal.text = response.data.message;
+            this.setState({ swal: swal });
+            location.reload();
+        }).catch(error => {
+            let swal = this.state.swal;
+
+            swal.confirm_button = true;
+            swal.title = 'Gagal';
+            swal.type = 'error';
+            swal.text = 'Please check your connection';
+            this.setState({ swal: swal });
+            console.log(error);
         });
     }
-    _onSubmit(e) {
-        e.preventDefault();
-        //console.log(this.state.images);
-        var xhr = this._create();
-        xhr.done(this._onSuccess)
-            .fail(this._onError)
-            .always(this.hideLoading);
+
+
+    _onChange(e) {
+        let newVoucher = this.state.voucher;
+        newVoucher[e.target.name] = $.trim(e.target.value);
+        this.setState({ voucher: newVoucher });
+
+        this.props.handleValidation(e.target.name)(e);
     }
-    _onSuccess(data) {
-        console.log(data);
-        console.log('success');
-        location.reload();
+
+    _onStartPickerChange(value, formattedValue) {
+        let newVoucher = this.state.voucher;
+        let newStartDate = this.state.voucher.start_date;
+        newStartDate['value'] = value;
+        newStartDate['formattedValue'] = formattedValue;
+        newVoucher['start_date'] = newStartDate;
+        this.setState(newVoucher);
     }
-    _onError(data) {
-        console.log(data);
-        console.log('error');
-        var message = 'Failed to login';
-        var res = data.responseJSON;
-        if (res.message) {
-            message = data.responseJSON.message;
-        }
-        if (res.errors) {
-            this.setState({
-                errors: res.errors
-            });
+
+    _onEndPickerChange(value, formattedValue) {
+        let newVoucher = this.state.voucher;
+        let newEndDate = this.state.voucher.end_date;
+        newEndDate['value'] = value;
+        newEndDate['formattedValue'] = formattedValue;
+        newVoucher['end_date'] = newEndDate;
+        this.setState(newVoucher);
+    }
+
+    getValidatorData() {
+        return this.state.voucher;
+    }
+
+    getClassName(field) {
+        return this.props.isValid(field) ? '' : 'has-error';
+    }
+
+    renderErrors(messages) {
+        if (messages.length) {
+            messages = messages.map((message, i) => <li key={i} className="">{message}</li>);
+            return <ul className="errors">{messages}</ul>;
         }
     }
 
-    _onChange(e) {
-        var state = {};
-        state[e.target.name] = $.trim(e.target.value);
-        console.log(state);
-        this.setState(state);
+    activateValidation(e) {
+        strategy.activateRule(this.validatorTypes, e.target.name);
+        this.props.handleValidation(e.target.name)(e);
+    }
+
+    dismissSwal() {
+        let swal = this.state.swal;
+        swal.show = false;
+        this.setState({ swal: swal });
     }
 
     render() {
@@ -130,78 +217,75 @@ class VoucherEdit extends React.Component {
                         </div>
                         <form role="form" className="css-form" >
 
-                            <input type="hidden" name="id" value={this.props.id} />
                             <div className="col-lg-12" >
-                                <div className="form-group ">
+                                <div className={this.getClassName('code') + ' form-group'}>
                                     <label className="  control-label">Voucher Code </label>
                                     <div >
-                                        <input type="text" name="code"
-                                            value={this.state.code} onChange={this._onChange}
+                                        <input type="text" name="code" value={this.state.voucher.code} onChange={this._onChange}
                                             placeholder="CODE01" className="form-control" />
+                                        {this.renderErrors(this.props.getValidationMessages('code'))}
                                     </div>
                                 </div>
                             </div>
                             <div className="col-lg-12"  >
-                                <div className="form-group ">
+                                <div className={this.getClassName('name') + ' form-group'}>
                                     <label className="  control-label">Voucher Name </label>
                                     <div>
-                                        <input type="text" name="name"
-                                            value={this.state.name} onChange={this._onChange}
+                                        <input type="text" name="name" value={this.state.voucher.name} onChange={this._onChange}
                                             placeholder="Voucher Name" className="form-control" />
+                                        {this.renderErrors(this.props.getValidationMessages('name'))}
                                     </div>
                                 </div>
                             </div>
                             <div className="col-lg-6"  >
-                                <div className="form-group ">
+                                <div className={this.getClassName('disc') + ' form-group'}>
                                     <label className="  control-label">Disc in % </label>
                                     <div>
-                                        <input type="number" name="disc"
-                                            value={this.state.disc} onChange={this._onChange}
-                                            placeholder="10" className="form-control" />
+                                        <input type="number" name="disc" value={this.state.voucher.disc} onChange={this._onChange}
+                                            placeholder="10" className="form-control" min="1" />
+                                        {this.renderErrors(this.props.getValidationMessages('disc'))}
                                     </div>
                                 </div>
                             </div>
                             <div className="col-lg-6"  >
-                                <div className="form-group ">
+                                <div className={this.getClassName('max_claim') + ' form-group'}>
                                     <label className=" control-label">Max Claim </label>
                                     <div  >
-                                        <input type="number"
-                                            value={this.state.maxclaim} onChange={this._onChange}
-                                            name="maxclaim" placeholder="1" className="form-control" />
+                                        <input type="number" onChange={this._onChange}  value={this.state.voucher.max_claim}
+                                            name="max_claim" placeholder="1" min="1" className="form-control" />
+                                        {this.renderErrors(this.props.getValidationMessages('max_claim'))}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="form-group col-lg-6" id="startdate">
+                            <div className={this.getClassName('start_date') + ' form-group col-lg-6'}>
                                 <label className="font-normal">Start date</label>
-
-                                <div className="input-group date">
-                                    <input type="datetime" value="" name="startdate"
-                                        value={this.state.startdate} onChange={this._onChange}
-                                        className="form-control" />
-                                    <span className="input-group-addon"><i className="fa fa-calendar"></i></span>
-                                </div>
+                                <DatePicker id="start_date"
+                                    name="start_date"
+                                    value={this.state.voucher.start_date.value}
+                                    onChange={this._onStartPickerChange}
+                                    />
+                                {this.renderErrors(this.props.getValidationMessages('start_date'))}
                             </div>
-                            <div className="form-group col-lg-6" id="enddate">
+                            <div className={this.getClassName('end_date') + ' form-group col-lg-6'}>
                                 <label className="font-normal">End date</label>
 
-                                <div className="input-group date">
-                                    <input type="datetime" value="" name="enddate"
-                                        value={this.state.enddate} onChange={this._onChange}
-                                        className="form-control" />
-                                    <span className="input-group-addon"><i className="fa fa-calendar"></i></span>
-                                </div>
+                                <DatePicker id="end_date"
+                                    name="end_date"
+                                    value={this.state.voucher.end_date.value}
+                                    onChange={this._onEndPickerChange}
+                                    />
+                                {this.renderErrors(this.props.getValidationMessages('end_date'))}
                             </div>
-
 
                             <div className="form-group ">
                                 <label className="font-normal">Status</label>
+
                                 <div className="switch">
                                     <div className="onoffswitch">
-                                        <input type="checkbox" name="is_active"
-                                            onChange={this._onChange}
-                                            className="onoffswitch-checkbox" checked={this.state.is_active} id="status" />
-                                        <label className="onoffswitch-label" htmlFor="status">
+                                        <input type="checkbox" name="is_active" onChange={this._onChange}
+                                            className="onoffswitch-checkbox" id="is_active"  value={this.state.voucher.is_active} />
+                                        <label className="onoffswitch-label" htmlFor="is_active" >
                                             <span className="onoffswitch-inner"></span>
                                             <span className="onoffswitch-switch"></span>
                                         </label>
@@ -212,7 +296,7 @@ class VoucherEdit extends React.Component {
 
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={(e) => this._onSubmit(e)} bsStyle="success">
+                        <Button onClick={(e) => this._submitHandler(e)} bsStyle="success">
                             Save
                         </Button>
                         <Button onClick={this.close}>Close</Button>
@@ -222,7 +306,6 @@ class VoucherEdit extends React.Component {
         );
     }
 }
-//<input type="number" className="form-control" onChange={this._onChange} 
-//id="category_id" name="category_id" placeholder="category_id" required="" />
+VoucherEdit = validation(strategy)(VoucherEdit);
 
 export default VoucherEdit;

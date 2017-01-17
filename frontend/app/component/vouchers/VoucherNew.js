@@ -32,7 +32,7 @@ class VoucherNew extends React.Component {
                     value: new Date().toISOString(),
                     formattedValue: ''
                 },
-                status: false,
+                is_active: false,
             },
             swal: {
                 show: false,
@@ -105,7 +105,7 @@ class VoucherNew extends React.Component {
             max_claim: this.state.voucher.max_claim,
             start_date: this.state.voucher.start_date.value,
             end_date: this.state.voucher.end_date.value,
-            is_active: this.state.voucher.status
+            is_active: this.state.voucher.is_active
         }).then(response => {
             let swal = this.state.swal;
             if (response.data.error) {
@@ -270,9 +270,9 @@ class VoucherNew extends React.Component {
 
                                 <div className="switch">
                                     <div className="onoffswitch">
-                                        <input type="checkbox" name="status" onChange={this._onChange}
-                                            className="onoffswitch-checkbox" id="status" />
-                                        <label className="onoffswitch-label" htmlFor="status" >
+                                        <input type="checkbox" name="is_active" onChange={this._onChange}
+                                            className="onoffswitch-checkbox" id="is_active" />
+                                        <label className="onoffswitch-label" htmlFor="is_active" >
                                             <span className="onoffswitch-inner"></span>
                                             <span className="onoffswitch-switch"></span>
                                         </label>
