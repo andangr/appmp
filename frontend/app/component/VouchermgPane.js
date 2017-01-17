@@ -1,9 +1,11 @@
 import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
+import axios from 'axios';
 
 import VoucherRow from './VoucherRow';
 import VoucherNew from './VoucherNew';
+import Pagination from 'react-js-pagination';
 
 import backend from '../configs/backend';
 
@@ -14,26 +16,36 @@ class VouchermgPane extends React.Component {
 
         this.state = {
             balance: {},
-            vouchers: {}
+            vouchers: {},
+            pagination: {
+                total: 0,
+                count: 0,
+                per_page: 0,
+                current_page: 1,
+                total_pages: 1
+            }
         };
     }
-    loadVouchersData(token) {
-        fetch(backend.url + '/api/vouchers', {
+    loadVouchersData(token, page) {
+        axios.create({
+            baseURL: backend.url,
+            timeout: 1000,
             headers: {
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + token
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + token
             }
-        })
+        }).get('/api/vouchers?page=' + page)
             .then((response) => {
-                console.log(response);
-                console.log(response.json());
-            }).then(data => {
-                console.log(data);
+                this.setState({ vouchers: response.data.data, pagination: response.data.meta.pagination });
             });
     }
-    componentWillMount() {
+
+    handlePageChange(page) {
         var token = cookie.load('token');
-        this.loadVouchersData(token);
+        this.loadVouchersData(token, page);
+    }
+    componentWillMount() {
+        this.handlePageChange(1);
 
     }
     renderTable(key) {
@@ -90,7 +102,13 @@ class VouchermgPane extends React.Component {
                                             </tr>
                                         </tfoot>
                                     </table>
-
+                                    <Pagination
+                                        activePage={this.state.pagination.current_page}
+                                        itemsCountPerPage={this.state.pagination.per_page}
+                                        totalItemsCount={this.state.pagination.total}
+                                        pageRangeDisplayed={5}
+                                        onChange={this.handlePageChange}
+                                        />
                                 </div>
                             </div>
                         </div>
