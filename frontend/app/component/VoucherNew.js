@@ -2,34 +2,46 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
+import DatePicker from 'react-bootstrap-date-picker';
 
-
-import DynamicSelect from './helper/DynamicSelect';
 import Options from './helper/Options';
 
+import backend from '../configs/backend';
+
+import 'sweetalert/dist/sweetalert.css';
+
 class VoucherNew extends React.Component {
-	constructor(props){
+    constructor(props) {
         super(props);
         autoBind(this);
 
         this.state = {
-            vouchercode : '',
-            vouchername: '',
-            disc: 0,
-            maxclaim: 1,
-            startdate: '',
-            enddate: '',
-            status : false,
-            "showModal": false,
-            "product":{},
-            "categoriesdata":{
-                data:{}
+            voucher: {
+                code: '',
+                name: '',
+                disc: 0,
+                max_claim: 1,
+                start_date: {
+                    value: new Date().toISOString(),
+                    formattedValue: ''
+                },
+                end_date: {
+                    value: new Date().toISOString(),
+                    formattedValue: ''
+                },
+                status: false,
             },
-            "subcategoriesdata":{
-                data:{}
+            showModal: false,
+            product: {},
+            categoriesdata: {
+                data: {}
             },
-            "selectedOption": 0
-        }
+            subcategoriesdata: {
+                data: {}
+            },
+            selectedOption: 0
+        };
+
         this._handleImageChange = this._handleImageChange.bind(this);
         this._onSubmit = this._onSubmit.bind(this);
     }
@@ -40,21 +52,22 @@ class VoucherNew extends React.Component {
     open() {
         this.setState({ showModal: true });
     }
-    optionCategoryChange(e){
-        this.setState({category_id: e.target.value});
-        console.log('option changed to '+this.state.category_id);
+    optionCategoryChange(e) {
+        this.setState({ category_id: e.target.value });
+        console.log('option changed to ' + this.state.category_id);
         var token = cookie.load('token');
         this.loadSubcategoryOptions(token, e.target.value);
     }
-    optionSubCategoryChange(e){
-        this.setState({sub_category_id: e.target.value});
+    optionSubCategoryChange(e) {
+        this.setState({ sub_category_id: e.target.value });
         //console.log('option changed to '+this.state.sub_category_id);
     }
     componentWillMount() {
         var token = cookie.load('token');
-	}
+        console.log(token);
+    }
 
-    _handleImageChange(e){
+    _handleImageChange(e) {
         e.preventDefault();
 
         let reader = new FileReader();
@@ -63,84 +76,90 @@ class VoucherNew extends React.Component {
         let fileformat = filename.split('.').pop();
         //console.log('filename : '+filename+' format : '+fileformat);
         reader.onloadend = () => {
-        this.setState({
-            images: reader.result, //file,
-            imagePreviewUrl: reader.result,
-            fileformat:fileformat
-        });
-        }
+            this.setState({
+                images: reader.result, //file,
+                imagePreviewUrl: reader.result,
+                fileformat: fileformat
+            });
+        };
 
-        reader.readAsDataURL(file)
-    
+        reader.readAsDataURL(file);
+
     }
-    _create () {
+    _create() {
         var token = cookie.load('token');
         return $.ajax({
-        url: 'http://172.19.16.156:8000/api/voucher/create',
-        type: 'GET',
-        data: {
-            vouchercode : this.state.vouchercode,
-            vouchername: this.state.vouchername,
-            disc: this.state.disc,
-            maxclaim: this.state.maxclaim,
-            startdate: this.state.startdate,
-            enddate: this.state.enddate,
-            status : this.state.status
-        },
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Bearer " + token);
-            this.setState({loading: true});
-        }.bind(this)
-        })
+            url: backend.url + '/api/voucher/create',
+            type: 'GET',
+            data: {
+                vouchercode: this.state.voucher.code,
+                vouchername: this.state.voucher.name,
+                disc: this.statevoucher.disc,
+                maxclaim: this.state.voucher.max_claim,
+                startdate: this.state.voucher.start_date,
+                enddate: this.state.voucher.end_date,
+                status: this.state.voucher.status
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                this.setState({ loading: true });
+            }.bind(this)
+        });
     }
-    _onSubmit(e){
+    _onSubmit(e) {
         e.preventDefault();
         console.log(this.state);
         var xhr = this._create();
         xhr.done(this._onSuccess)
-        .fail(this._onError)
-        .always(this.hideLoading)
+            .fail(this._onError)
+            .always(this.hideLoading);
     }
-    _onSuccess (data) {
+    _onSuccess(data) {
         console.log(data);
-        console.log("success");
+        console.log('success');
         location.reload();
     }
-    _onError (data) {
+    _onError(data) {
         console.log(data);
-        console.log("error");
-        var message = "Failed to login";
+        console.log('error');
+        var message = 'Failed to login';
         var res = data.responseJSON;
-        if(res.message) {
-        message = data.responseJSON.message;
+        if (res.message) {
+            message = data.responseJSON.message;
         }
-        if(res.errors) {
-        this.setState({
-            errors: res.errors
-        });
+        console.log(message);
+        if (res.errors) {
+            this.setState({
+                errors: res.errors
+            });
         }
     }
-    _onChange (e) {
-        var state = {};
-        state[e.target.name] =  $.trim(e.target.value);
-        this.setState(state);
-    }
-	renderCategoryOptions(key){
-		return <Options id={this.state.categoriesdata.data[key].id} text={this.state.categoriesdata.data[key].text} key={this.state.categoriesdata.data[key].id} />
-    }
-    renderSubCategoryOptions(key){
-		return <Options id={this.state.subcategoriesdata.data[key].id} text={this.state.subcategoriesdata.data[key].text} key={this.state.subcategoriesdata.data[key].id} />
+    _onChange(e) {
+        let newVoucher = this.state.voucher;
+        newVoucher[e.target.name] = $.trim(e.target.value);
+        this.setState({ voucher: newVoucher });
     }
 
-	render (){
-        let {imagePreviewUrl} = this.state;
-        let $imagePreview = null;
-        if (imagePreviewUrl) {
-        $imagePreview = (<img src={imagePreviewUrl} />);
-        } else {
-        $imagePreview = (<div className="previewText">Please select an Image for Preview</div>);
-        }
-		return (
+    _onStartPickerChange(value, formattedValue) {
+        let newVoucher = this.state.voucher;
+        let newStartDate = this.state.voucher.start_date;
+        newStartDate['value'] = value;
+        newStartDate['formattedValue'] = formattedValue;
+        newVoucher['start_date'] = newStartDate;
+        this.setState(newVoucher);
+    }
+
+    _onEndPickerChange(value, formattedValue) {
+        let newVoucher = this.state.voucher;
+        let newEndDate = this.state.voucher.end_date;
+        newEndDate['value'] = value;
+        newEndDate['formattedValue'] = formattedValue;
+        newVoucher['end_date'] = newEndDate;
+        this.setState(newVoucher);
+    }
+
+    render() {
+        return (
             <div className="row">
                 <div className="col-sm-12">
                     <button className="btn btn-success btn-sm pull-right" onClick={this.open} >
@@ -154,93 +173,93 @@ class VoucherNew extends React.Component {
                     <Modal.Body>
                         <div className="row text-center">
                             <h3>Create New Voucher</h3>
-                            <br/>
+                            <br />
                         </div>
-                        <form role="form"   className="css-form" >
-                            
-                            <div  className="col-lg-12" >
-                                <div  className="form-group ">
-                                    <label  className="  control-label">Voucher Code </label>
+                        <form role="form" className="css-form" >
+
+                            <div className="col-lg-12" >
+                                <div className="form-group ">
+                                    <label className="  control-label">Voucher Code </label>
                                     <div >
-                                        <input type="text" name="vouchercode"  onChange={this._onChange}
-                                        placeholder="CODE01" className="form-control" />
+                                        <input type="text" name="vouchercode" onChange={this._onChange}
+                                            placeholder="CODE01" className="form-control" />
                                     </div>
                                 </div>
                             </div>
-                            <div  className="col-lg-12"  >
-                                <div  className="form-group ">
-                                    <label  className="  control-label">Voucher Name </label>
+                            <div className="col-lg-12"  >
+                                <div className="form-group ">
+                                    <label className="  control-label">Voucher Name </label>
                                     <div>
-                                        <input type="text" name="vouchername"  onChange={this._onChange}
-                                        placeholder="Voucher Name" className="form-control" />
+                                        <input type="text" name="vouchername" onChange={this._onChange}
+                                            placeholder="Voucher Name" className="form-control" />
                                     </div>
                                 </div>
                             </div>
-                            <div  className="col-lg-6"  >
-                                <div  className="form-group ">
-                                    <label  className="  control-label">Disc in % </label>
+                            <div className="col-lg-6"  >
+                                <div className="form-group ">
+                                    <label className="  control-label">Disc in % </label>
                                     <div>
-                                        <input type="number" name="disc"  onChange={this._onChange}
-                                        placeholder="10"  className="form-control" />
+                                        <input type="number" name="disc" onChange={this._onChange}
+                                            placeholder="10" className="form-control" />
                                     </div>
                                 </div>
                             </div>
-                            <div  className="col-lg-6"  >
-                                <div  className="form-group ">
-                                    <label  className=" control-label">Max Claim </label>
+                            <div className="col-lg-6"  >
+                                <div className="form-group ">
+                                    <label className=" control-label">Max Claim </label>
                                     <div  >
                                         <input type="number" onChange={this._onChange}
-                                        name="maxclaim" placeholder="1" className="form-control" />
+                                            name="maxclaim" placeholder="1" className="form-control" />
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div  className="form-group col-lg-6" id="startdate">
-                                <label  className="font-normal">Start date</label>
 
-                                <div  className="input-group date">
-                                    <input type="datetime" name="startdate"  onChange={this._onChange}
-                                        className="form-control"  />
-                                    <span  className="input-group-addon"><i  className="fa fa-calendar"></i></span>
-                                </div>
-                            </div>
-                            <div  className="form-group col-lg-6" id="enddate">
-                                <label  className="font-normal">End date</label>
+                            <div className="form-group col-lg-6" id="startdate">
+                                <label className="font-normal">Start date</label>
+                                <DatePicker id="start_date"
+                                    name="start_date"
+                                    value={this.state.voucher.start_date.value}
+                                    onChange={this._onStartPickerChange}
+                                    />
 
-                                <div  className="input-group date">
-                                    <input type="datetime" name="enddate"  onChange={this._onChange}
-                                        className="form-control" />
-                                    <span  className="input-group-addon"><i  className="fa fa-calendar"></i></span>
-                                </div>
                             </div>
-                        
-                            <div  className="form-group ">
-                                <label  className="font-normal">Status</label>
-                                
-                                <div  className="switch">
-                                    <div  className="onoffswitch">
-                                        <input type="checkbox" name="status"  onChange={this._onChange}
+                            <div className="form-group col-lg-6" id="enddate">
+                                <label className="font-normal">End date</label>
+
+                                <DatePicker id="end_date"
+                                    name="end_date"
+                                    value={this.state.voucher.end_date.value}
+                                    onChange={this._onEndPickerChange}
+                                    />
+                            </div>
+
+                            <div className="form-group ">
+                                <label className="font-normal">Status</label>
+
+                                <div className="switch">
+                                    <div className="onoffswitch">
+                                        <input type="checkbox" name="status" onChange={this._onChange}
                                             className="onoffswitch-checkbox" id="status" />
-                                        <label  className="onoffswitch-label" htmlFor="status" >
-                                            <span  className="onoffswitch-inner"></span>
-                                            <span  className="onoffswitch-switch"></span>
+                                        <label className="onoffswitch-label" htmlFor="status" >
+                                            <span className="onoffswitch-inner"></span>
+                                            <span className="onoffswitch-switch"></span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </form>
-                            
+
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={(e)=>this._onSubmit(e)} bsStyle="success">
+                        <Button onClick={(e) => this._onSubmit(e)} bsStyle="success">
                             Save
                         </Button>
                         <Button onClick={this.close}>Close</Button>
                     </Modal.Footer>
                 </Modal>
             </div>
-		)
-	}
-};
+        );
+    }
+}
 
 export default VoucherNew;
