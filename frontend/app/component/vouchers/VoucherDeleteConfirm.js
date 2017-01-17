@@ -15,7 +15,7 @@ class VoucherDeleteConfirm extends React.Component {
         this.state = {
             loading: false,
             errors: ''
-        }
+        };
 
     }
 
@@ -36,10 +36,10 @@ class VoucherDeleteConfirm extends React.Component {
             url: backend.url + '/api/voucher/' + this.props.id,
             type: 'DELETE',
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", "Bearer " + token);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
                 this.setState({ loading: true });
             }.bind(this)
-        })
+        });
     }
     deleteNow() {
 

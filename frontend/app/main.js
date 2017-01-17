@@ -11,7 +11,7 @@ import Logout from './component/Logout';
 import ResetPasswordPane from './component/ResetPasswordPane';
 import RegisterPane from './component/RegisterPane';
 import MyRoomPane from './component/MyRoomPane';
-import CreateProductPane from './component/CreateProductPane';
+import CreateProductPane from './component/products/CreateProductPane';
 import ProductDetailsPane from './component/ProductDetailsPane';
 import PaymentConfirmationPane from './component/PaymentConfirmationPane';
 import ProductDownload from './component/ProductDownload';
