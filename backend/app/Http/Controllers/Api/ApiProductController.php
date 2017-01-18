@@ -63,13 +63,18 @@ class ApiProductController extends Controller
      * @return Response
      */
    public function destroy($id) {
+        DB::beginTransaction();
+        try {
+            ProductImage::where('product_id', $id)->delete();
+            Prdposition::where('product_id', $id)->delete();
+            Product::findOrFail($id)->delete();
 
-        $deletedRows = ProductImage::where('product_id', $id)->delete();
-        $deletedRows = Prdposition::where('product_id', $id)->delete();
-
-        Product::destroy($id);
-
-        return $this->successResponse('Voucher is successfuly deleted');
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['code' => 200, 'error' => true, 'message' => 'Failed to delete product'], 200);
+        }
+        DB::commit();
+        return response()->json(['code' => 200, 'error' => false, 'message' => 'Product is deleted'], 200);
    }
     
     /**
@@ -124,55 +129,53 @@ class ApiProductController extends Controller
      */
    public function store(Request $request){
       $input = $request->all();
-       
-      $product_name = $input['product_name'];
-      $package_code = $input['package_code']; 
-      $price = $input['price']; 
-      $category_id = $input['category_id']; 
-      $sub_category_id= $input['sub_category_id']; 
-      $description = $input['description']; 
-      $compatibility = $input['compatibility'];  
-      $urldownload = $input['urldownload'];
-      $status = $input['status'];
+
       $images = $input['images'];
       $fileformat = $input['fileformat'];
-    
       $datetime = date("Y-m-d h:i:s");
 
-      $next_id = $this->_getNextStatementId('product_id_seq');
-      
-      $product = new Product;
-     
-      $product->id = $next_id;
-      $product->product_name = $product_name;
-      $product->package_code = $package_code;
-      $product->price = $price;
-      $product->category_id = $category_id;
-      $product->sub_category_id = $sub_category_id;
-      $product->description = $description;
-      $product->compatibility = $compatibility;
-      $product->urldownload = $urldownload;
-      $product->status = $status;
-      $product->created = $datetime;
-      $product->save();
-
       if($images){
-            $fileName = md5(uniqid()).'.'.$fileformat;
-            $file = $this->base64_to_jpeg($images, public_path().'/storage/'.$fileName);
-
-            $url = Storage::url($fileName);
-            $path = 'http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$url;
-
-            $product_image = new ProductImage;
-            $product_image->id = $this->_getNextStatementId('product_image_id_seq');
-            $product_image->product_id = $next_id;
-            $product_image->image_url = $path;
-            $product_image->image = $fileName;
-            $product_image->image_type_id = 1;
-            $product_image->save();
+          $fileName = md5(uniqid()).'.'.$fileformat;
+          $file = $this->base64_to_jpeg($images, public_path().'/storage/'.$fileName);
+      }else{
+          $fileName = "default.png";
       }
-      
-      return $this->successResponse('Product is successfuly created.', $product);
+
+      $url = Storage::url($fileName);
+      $path = 'http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$url;
+      $next_id = $this->_getNextStatementId('product_id_seq');
+
+      DB::beginTransaction();
+
+        try {
+            $input['id'] = $next_id;
+            $input['created'] = $datetime;
+
+            unset($input['images']);
+            unset($input['status']);
+            unset($input['fileformat']);
+            Product::create($input);
+
+            try {
+                $image = array(
+                    'id' => $this->_getNextStatementId('product_image_id_seq'),
+                    'product_id' => $next_id,
+                    'image_url' => $path,
+                    'image' => $fileName,
+                    'image_type_id'=> 1
+                );
+                ProductImage::create($image);
+            } catch (Exception $e) {
+                DB::rollback();
+                return response()->json(['code' => 400, 'error' => true, 'message' => 'Failed to save image'], 200);
+            }
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['code' => 400, 'error' => true, 'message' => 'Failed to save product'], 200);
+        }
+
+        DB::commit();
+        return response()->json(['code' => 200, 'error' => false, 'message' => 'Product is created'], 200);
    }
 
    /**
@@ -183,51 +186,59 @@ class ApiProductController extends Controller
      * @return Response
      */
    public function update(Request $request, $id){
+      
       $input = $request->all();
-       
-      $product_name = $input['product_name'];
-      $package_code = $input['package_code']; 
-      $price = $input['price']; 
-      $category_id = $input['category_id']; 
-      $sub_category_id= $input['sub_category_id']; 
-      $description = $input['description']; 
-      $compatibility = $input['compatibility'];  
-      $urldownload = $input['urldownload'];
-      $status = $input['status'];
+
       $images = $input['images'];
-      $fileformat = $input['fileformat'];
-    
       $datetime = date("Y-m-d h:i:s");
-      
-      $product = Product::find($id);
-     
-      $product->product_name = $product_name;
-      $product->package_code = $package_code;
-      $product->price = $price;
-      $product->category_id = $category_id;
-      $product->sub_category_id = $sub_category_id;
-      $product->description = $description;
-      $product->compatibility = $compatibility;
-      $product->urldownload = $urldownload;
-      $product->status = $status;
-      $product->save();
 
-      if($images){
-            $fileName = md5(uniqid()).'.'.$fileformat;
-            $file = $this->base64_to_jpeg($images, public_path().'/storage/'.$fileName);
+      DB::beginTransaction();
 
-            $url = Storage::url($fileName);
-            $path = 'http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$url;
+        try {
 
-            $product_image = ProductImage::where('product_id', $id)
-                                            ->first();
+            $product = Product::findOrFail($id);
 
-            $product_image->image_url = $path;
-            $product_image->image = $fileName;
-            $product_image->save();
-      }
-      
-      return $this->successResponse('Product is successfuly updated.', $product);
+            unset($input['status']);
+            if($images){
+                $fileformat = $input['fileformat'];
+                unset($input['fileformat']);
+            }
+            unset($input['images']);
+            
+
+            $product->update($input);
+
+            if($fileformat){
+                
+                $fileName = md5(uniqid()).'.'.$fileformat;
+                $file = $this->base64_to_jpeg($images, public_path().'/storage/'.$fileName);
+                $url = Storage::url($fileName);
+                $path = 'http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$url;
+
+                try {
+                    $product_image = ProductImage::where('product_id', '=', $id)->firstOrFail();;
+
+                    $data_image = array(
+                        'id' => $this->_getNextStatementId('product_image_id_seq'),
+                        'product_id' => $id,
+                        'image_url' => $path,
+                        'image' => $fileName,
+                        'image_type_id'=> 1
+                    );
+                    $product_image->update($data_image);
+
+                } catch (Exception $e) {
+                    DB::rollback();
+                    return response()->json(['code' => 400, 'error' => true, 'message' => 'Failed to save image'], 200);
+                }
+            }
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['code' => 400, 'error' => true, 'message' => 'Failed to save product'], 200);
+        }
+
+        DB::commit();
+        return response()->json(['code' => 200, 'error' => false, 'message' => 'Product is created'], 200);
    }
 
    private function base64_to_jpeg($base64_string, $output_file) {
@@ -240,6 +251,7 @@ class ApiProductController extends Controller
 
         return $output_file; 
     }
+    
     /**
     * @return int
     */

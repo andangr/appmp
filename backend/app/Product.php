@@ -18,10 +18,25 @@ class Product extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
+
+    protected $fillable = [
+        'id', 
+        'product_name', 
+        'package_code', 
+        'price', 
+        'description', 
+        'compatibility', 
+        'urldownload', 
+        'status', 
+        'created', 
+        'category_id', 
+        'sub_category_id', 
+        'is_active'
+    ];
 
     /**
-     * Get the comments for the blog post.
+     * Get the images.
      */
     public function images()
     {

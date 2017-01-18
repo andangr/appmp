@@ -2,14 +2,14 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
-import Select2 from 'react-select2-wrapper';
-import 'react-select2-wrapper/css/select2.css';
+import SweetAlert from 'sweetalert-react';
+import axios from 'axios';
 
-import DynamicSelect from '../helper/DynamicSelect';
+
+import 'sweetalert/dist/sweetalert.css';
+
 import Options from '../helper/Options';
-
 import backend from '../../configs/backend';
-import frontend from '../../configs/frontend';
 
 class DeleteProductConfirm extends React.Component {
 	constructor(props){
@@ -18,61 +18,84 @@ class DeleteProductConfirm extends React.Component {
 
         this.state = {
             loading: false,
-            errors :''
-        }
-        
+            product: {},
+            swal: {
+                show: false,
+                title: '',
+                message: '',
+                type: 'info',
+                confirm_button: false,
+                cancel_button: false,
+            },
+        };
     }
-
-    close() {
-        this.setState({ showModal: false });
-    }
-    open() {
-        this.setState({ showModal: true });
-    }
-    
-    
     componentWillMount() {
         
 	}
-    _create () {
-        var token = cookie.load('token');
-        return $.ajax({
-        url: backend.url + 'api/product/'+this.props.id,
-        type: 'DELETE',
-        data: {
-            id:this.props.id,
-        },
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Bearer " + token);
-            this.setState({loading: true});
-        }.bind(this)
-        })
-    }
-    deleteNow(){
-        
-        var xhr = this._create();
-        xhr.done(this._onSuccess)
-        .fail(this._onError)
-        .always(this.hideLoading)
-    }
-    _onSuccess (data) {
-        console.log(data);
-        console.log("success delete");
-        location.reload();
-    }
-    _onError (data) {
-        console.log(data);
-        console.log("error");
-        var message = "Failed to login";
-        var res = data.responseJSON;
-        if(res.message) {
-            message = data.responseJSON.message;
-        }
-        if(res.errors) {
+    deleteProduct(){
+        console.log('deleting');
         this.setState({
-            errors: res.errors
+            swal: {
+                show: true,
+                title: 'Deleting ...',
+                text: 'We are deleting your data',
+                type: 'info',
+                confirm_button: false,
+                cancel_button : false
+            }
         });
-        }
+        var token = cookie.load('token');
+        axios.create({
+            baseURL: backend.url,
+            timeout: 1000,
+            headers: {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + token
+            }
+        }).delete('/api/product/' + this.props.id)
+        .then(response => {
+            let swal = this.state.swal;
+            if (response.data.error) {
+                swal.title = 'Failed';
+                swal.type = 'error';
+            } else {
+                swal.title = 'Success';
+                swal.type = 'success';
+                swal.confirm_button = false;
+            }
+            swal.text = response.data.message;
+            this.setState({ swal: swal });
+            setTimeout(function () {
+               location.reload();
+            }, 2000);
+            
+        }).catch(error => {
+            let swal = this.state.swal;
+
+            swal.confirm_button = true;
+            swal.title = 'Failed';
+            swal.type = 'error';
+            swal.text = 'Please check your connection';
+            this.setState({ swal: swal });
+            console.log(error);
+        });
+    }
+    showSwal() {
+        let swal = this.state.swal;
+        swal.show = true;
+        swal.title = 'Are You Sure?';
+        swal.text = 'You will not be able to recover this product';
+        swal.type = 'warning';
+        swal.cancel_button = true;
+        swal.confirm_button = true;
+        this.setState({
+            swal: swal
+        });
+    }
+    dismissSwal() {
+        let swal = this.state.swal;
+        swal.show = false;
+        this.setState({swal : swal});
     }
 	render (){
         
@@ -80,24 +103,20 @@ class DeleteProductConfirm extends React.Component {
             <div className="row">
                 <div className="col-sm-12">
                     <a className="pull-right" 
-                        onClick={this.open} >
+                        onClick={this.showSwal} >
                         <i className="fa fa-trash"></i></a>
                 </div>
-                <Modal bsSize="small" aria-labelledby="contained-modal-title-lg" show={this.state.showModal} onHide={this.close}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Delete Product</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <div className="row text-center">
-                            <p>Are you sure to delete this product ? </p>
-                            <br/>
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button onClick={this.deleteNow} bsStyle="danger">Delete</Button>
-                        <Button onClick={this.close}>Close</Button>
-                    </Modal.Footer>
-                </Modal>
+                <SweetAlert
+                    show={this.state.swal.show}
+                    title={this.state.swal.title}
+                    text={this.state.swal.text}
+                    type={this.state.swal.type}
+                    showConfirmButton={this.state.swal.confirm_button}
+                    showCancelButton={this.state.swal.cancel_button}
+                    confirmButtonColor="#DD6B55"
+                    onConfirm={this.deleteProduct}
+                    onCancel={this.dismissSwal}
+                    />
             </div>
 		)
 	}

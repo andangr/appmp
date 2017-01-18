@@ -19,6 +19,7 @@ class ApiCategoryController extends Controller
         $aData = array();
         $response = array(
                 'code' => 404,
+                'error' => true,
                 'message' => 'No Category Found',
                 'data' => []
             );
@@ -36,6 +37,7 @@ class ApiCategoryController extends Controller
 
             $response = array(
                 'code' => 200,
+                'error' => false,
                 'message' => 'Data category success loaded',
                 'data' => $aResponse
             );

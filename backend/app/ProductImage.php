@@ -13,6 +13,14 @@ class ProductImage extends Model
      */
     protected $table = 'product_image';
 
+    protected $fillable = [
+        'id',
+        'product_id',
+        'image_url',
+        'image',
+        'image_type_id'
+    ];
+
 
     /**
      * Indicates if the model should be timestamped.

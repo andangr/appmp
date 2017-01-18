@@ -14,6 +14,7 @@ class Controller extends BaseController
     public function successResponse($message, $data = null){
         $response = array(
             'code' => 200,
+            'error' => false,
             'message' => $message
         );
         

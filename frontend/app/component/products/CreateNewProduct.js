@@ -2,12 +2,15 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
-import Select2 from 'react-select2-wrapper';
-import 'react-select2-wrapper/css/select2.css';
+import Toggle from 'react-toggle';
+import SweetAlert from 'sweetalert-react';
+import axios from 'axios';
+import validation from 'react-validation-mixin';
+import strategy from 'react-validatorjs-strategy';
 
-import DynamicSelect from '../helper/DynamicSelect';
+import 'sweetalert/dist/sweetalert.css';
+
 import Options from '../helper/Options';
-
 import backend from '../../configs/backend';
 import frontend from '../../configs/frontend';
 
@@ -17,27 +20,46 @@ class CreateNewProduct extends React.Component {
         autoBind(this);
 
         this.state = {
-            "product_name": '',
-            "package_code": '',
-            "price": '',
-            "category_id": 0,
-            "sub_category_id": 0,
-            "description": '',
-            "compatibility": '',
-            "urldownload": '',
-            "status": '',
-            "images": '',
-            "imagePreviewUrl": '',
-            "fileformat": '',
-            "showModal": false,
-            "categories": {
+            showModal: false,
+            imagePreviewUrl: '',
+            product: {
+                product_name: '',
+                package_code: '',
+                price: '',
+                category_id: '',
+                sub_category_id: '',
+                description: '',
+                compatibility: '',
+                urldownload: '',
+                status: false,
+                images: '',
+                fileformat: '',
+            },
+            categories: {
                 data: {}
             },
-            "subcategories": {
+            subcategories: {
                 data: {}
             },
-            "selectedOption": 0
+            swal: {
+                show: false,
+                title: '',
+                message: '',
+                type: 'info',
+                confirm_button: true,
+            }
         }
+        this.validatorTypes = strategy.createSchema(
+            {
+                product_name: 'required',
+                package_code: 'required',
+                price: 'required',
+                category_id: 'required|not_in:1',
+                sub_category_id: 'required|not_in:1',
+                compatibility: 'required',
+                urldownload: 'required|url',
+            }
+        );
         this._handleImageChange = this._handleImageChange.bind(this);
         this._onSubmit = this._onSubmit.bind(this);
     }
@@ -45,20 +67,27 @@ class CreateNewProduct extends React.Component {
     close() {
         this.setState({ showModal: false });
     }
+
     open() {
         this.setState({ imagePreviewUrl: '' });
         this.setState({ showModal: true });
     }
+
     optionCategoryChange(e) {
-        this.setState({ category_id: e.target.value });
-        //console.log('option changed to '+this.state.category_id);
+        this._onChange(e);
         var token = cookie.load('token');
         this.loadSubcategoryOptions(token, e.target.value);
     }
+
     optionSubCategoryChange(e) {
-        this.setState({ sub_category_id: e.target.value });
-        //console.log('option changed to '+this.state.sub_category_id);
+        this.setState({
+            product: {
+                sub_category_id: e.target.value
+            }
+        });
+        console.log(this.state.product.sub_category_id);
     }
+
     loadCategoryOptions(token) {
         fetch(backend.url + `/api/category/`, {
             headers: {
@@ -69,6 +98,7 @@ class CreateNewProduct extends React.Component {
             .then(categories => this.setState({ categories }))
 
     }
+
     loadSubcategoryOptions(token, cat) {
         fetch(backend.url + `/api/subcategory/getbycatid/` + cat, {
             headers: {
@@ -91,78 +121,118 @@ class CreateNewProduct extends React.Component {
         let file = e.target.files[0];
         let filename = e.target.value;
         let fileformat = filename.split('.').pop();
+
         reader.onloadend = () => {
-            this.setState({
-                images: reader.result, //file,
-                imagePreviewUrl: reader.result,
-                fileformat: fileformat
-            });
+            let newProduct = this.state.product;
+            newProduct['images'] = reader.result;
+            newProduct['fileformat'] = fileformat;
+            this.setState({ product: newProduct });
+
+            this.setState({ imagePreviewUrl: reader.result });
         }
 
         reader.readAsDataURL(file)
 
     }
     _create() {
+        this.setState({
+            swal: {
+                show: true,
+                title: 'Please wait...',
+                text: 'We are saving your data',
+                type: 'info',
+                confirm_button: false,
+            }
+        });
         var token = cookie.load('token');
-        return $.ajax({
-            url: backend.url + '/api/product',
-            type: 'POST',
-            data: {
-                product_name: this.state.product_name,
-                package_code: this.state.package_code,
-                price: this.state.price,
-                category_id: this.state.category_id,
-                sub_category_id: this.state.sub_category_id,
-                description: this.state.description,
-                compatibility: this.state.compatibility,
-                urldownload: this.state.urldownload,
-                status: this.state.status,
-                images: this.state.images,
-                fileformat: this.state.fileformat,
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", "Bearer " + token);
-                this.setState({ loading: true });
-            }.bind(this)
-        })
+        axios.create({
+            baseURL: backend.url,
+            timeout: 1000,
+            headers: {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + token
+            }
+        }).post('/api/product', {
+            product_name: this.state.product.product_name,
+            package_code: this.state.product.package_code,
+            price: this.state.product.price,
+            category_id: this.state.product.category_id,
+            sub_category_id: this.state.product.sub_category_id,
+            description: this.state.product.description,
+            compatibility: this.state.product.compatibility,
+            urldownload: this.state.product.urldownload,
+            is_active: this.state.product.status,
+            images: this.state.product.images,
+            fileformat: this.state.product.fileformat,
+        }).then(response => {
+            let swal = this.state.swal;
+            if (response.data.error) {
+                swal.title = 'Gagal';
+                swal.type = 'error';
+            } else {
+                swal.title = 'Berhasil';
+                swal.type = 'success';
+                swal.confirm_button = true;
+            }
+            swal.text = response.data.message;
+            this.setState({ swal: swal });
+        }).catch(error => {
+            let swal = this.state.swal;
+
+            swal.confirm_button = true;
+            swal.title = 'Gagal';
+            swal.type = 'error';
+            swal.text = 'Please check your connection';
+            this.setState({ swal: swal });
+            console.log(error);
+        });
     }
     _onSubmit(e) {
         e.preventDefault();
-        //console.log(this.state.images);
-        var xhr = this._create();
-        xhr.done(this._onSuccess)
-            .fail(this._onError)
-            .always(this.hideLoading)
-    }
-    _onSuccess(data) {
-        console.log(data);
-        console.log("success");
-        location.reload();
-    }
-    _onError(data) {
-        console.log(data);
-        console.log("error");
-        var message = "Failed to login";
-        var res = data.responseJSON;
-        if (res.message) {
-            message = data.responseJSON.message;
-        }
-        if (res.errors) {
-            this.setState({
-                errors: res.errors
-            });
-        }
+        this.props.validate(error => {
+            if (!error) {
+                this._create();
+            }
+        });
+
     }
     _onChange(e) {
-        var state = {};
-        state[e.target.name] = $.trim(e.target.value);
-        this.setState(state);
+        let newProduct = this.state.product;
+        newProduct[e.target.name] = $.trim(e.target.value);
+        this.setState({ product: newProduct });
+        console.log(this.state);
+    }
+    _onChangeToggle(e) {
+        let newProduct = this.state.product;
+        newProduct['status'] = !this.state.product.status;
+        this.setState({ product: newProduct });
+        console.log(this.state);
     }
     renderCategoryOptions(key) {
         return <Options id={this.state.categories.data[key].id} text={this.state.categories.data[key].text} key={this.state.categories.data[key].id} />
     }
     renderSubCategoryOptions(key) {
         return <Options id={this.state.subcategories.data[key].id} text={this.state.subcategories.data[key].text} key={this.state.subcategories.data[key].id} />
+    }
+    renderErrors(messages) {
+        if (messages.length) {
+            messages = messages.map((message, i) => <li key={i} className="">{message}</li>);
+            return <ul className="errors">{messages}</ul>;
+        }
+    }
+    getValidatorData() {
+        return this.state.product;
+    }
+    getClassName(field) {
+        return this.props.isValid(field) ? '' : 'has-error';
+    }
+    dismissSwal() {
+        let swal = this.state.swal;
+        swal.show = false;
+        this.setState({ swal: swal });
+        if (this.state.swal.type == 'success') {
+            location.reload();
+        }
     }
 
     render() {
@@ -192,83 +262,107 @@ class CreateNewProduct extends React.Component {
                         <form ref='product_form' onSubmit={(e) => this._onSubmit(e)}>
                             <div className="row">
                                 <div className="col-lg-6">
-                                    <div className="form-group">
+                                    <div className={this.getClassName('product_name') + ' form-group'}>
                                         <label >Product Name </label>
                                         <div >
                                             <input type="text" className="form-control" onChange={this._onChange}
-                                                id="product_name" name="product_name" placeholder="Product Name" required="" />
+                                                id="product_name" name="product_name" placeholder="Product Name" required=""
+                                                onBlur={this.props.handleValidation('product_name')} />
+                                            {this.renderErrors(this.props.getValidationMessages('product_name'))}
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={this.getClassName('package_code') + ' form-group'}>
                                         <label >Package Code </label>
                                         <div >
-                                            <input type="text" className="form-control" onChange={this._onChange}
-                                                id="package_code" name="package_code" placeholder="package_code" required="" />
+                                            <input type="number" className="form-control" onChange={this._onChange}
+                                                id="package_code" name="package_code" placeholder="package_code" required=""
+                                                onBlur={this.props.handleValidation('package_code')} />
+                                            {this.renderErrors(this.props.getValidationMessages('package_code'))}
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={this.getClassName('price') + ' form-group'}>
                                         <label >Price </label>
                                         <div >
-                                            <input type="text" className="form-control" onChange={this._onChange}
-                                                id="price" name="price" placeholder="price" required="" />
+                                            <input type="number" className="form-control" onChange={this._onChange}
+                                                id="price" name="price" placeholder="price" required=""
+                                                onBlur={this.props.handleValidation('price')} />
+                                            {this.renderErrors(this.props.getValidationMessages('price'))}
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={this.getClassName('category_id') + ' form-group'}>
                                         <label >Category </label>
                                         <div >
-                                            <select className="form-control" onChange={this.optionCategoryChange}>
+                                            <select className="form-control" name="category_id"
+                                                value={this.state.product.category_id}
+                                                onChange={this.optionCategoryChange}
+                                                onBlur={this.props.handleValidation('category_id')} >
+                                                <option value='' disabled  >Select an option</option>
                                                 {Object.keys(this.state.categories.data).map(this.renderCategoryOptions)}
                                             </select>
+                                            {this.renderErrors(this.props.getValidationMessages('category_id'))}
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={this.getClassName('sub_category_id') + ' form-group'}>
                                         <label >Sub Category </label>
                                         <div >
-                                            <select className="form-control" onChange={this.optionSubCategoryChange}>
+                                            <select className="form-control" name="sub_category_id"
+                                                onChange={this._onChange} value={this.state.product.sub_category_id}
+                                                onBlur={this.props.handleValidation('sub_category_id')} >
+                                                <option disabled value='' >Select an option</option>
                                                 {Object.keys(this.state.subcategories.data).map(this.renderSubCategoryOptions)}
                                             </select>
+                                            {this.renderErrors(this.props.getValidationMessages('sub_category_id'))}
 
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={this.getClassName('compatibility') + ' form-group'}>
                                         <label >Compatibility </label>
                                         <div >
                                             <input type="text" className="form-control" onChange={this._onChange}
-                                                id="compatibility" name="compatibility" placeholder="compatibility" required="" />
+                                                id="compatibility" name="compatibility" required=""
+                                                onBlur={this.props.handleValidation('compatibility')} />
+                                            {this.renderErrors(this.props.getValidationMessages('compatibility'))}
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={this.getClassName('urldownload') + ' form-group'}>
                                         <label >Url Download </label>
                                         <div >
                                             <input type="url" className="form-control" onChange={this._onChange}
-                                                id="urldownload" name="urldownload" placeholder="urldownload" required="" />
+                                                id="urldownload" name="urldownload" placeholder="urldownload" required=""
+                                                onBlur={this.props.handleValidation('urldownload')} />
+                                            {this.renderErrors(this.props.getValidationMessages('urldownload'))}
                                         </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label >Status </label>
-                                        <div >
-                                            <input type="text" className="form-control" onChange={this._onChange}
-                                                id="status" name="status" placeholder="status" required="" />
-                                        </div>
+
+                                    <div className={this.getClassName('status') + ' form-group'}>
+                                        <label>
+                                            Status
+                                        </label>
+                                        <span className="pull-right">
+                                            <Toggle
+                                                defaultChecked={this.state.product.test}
+                                                name="status"
+                                                onChange={this._onChangeToggle} />
+                                        </span>
                                     </div>
                                 </div>
                                 <div className="col-lg-6">
-                                    <div className="form-group">
+                                    <div className={this.getClassName('description') + ' form-group'}>
                                         <label >Description </label>
                                         <div >
                                             <textarea rows="7" cols="100%" className="form-control"
                                                 onChange={this._onChange}
-                                                id="description" name="description" placeholder="description" required="" />
+                                                id="description" name="description" placeholder="description " required="" />
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className={this.getClassName('images') + ' form-group'}>
                                         <label className="col-lg-5 control-label">Image </label>
                                         <div className="col-lg-7">
                                             <input type="file" className="form-control" onChange={(e) => this._handleImageChange(e)}
                                                 id="images" name="images" />
                                         </div>
                                     </div>
-                                    <div className="form-group">
+                                    <div className='form-group'>
                                         {$imagePreview}
                                     </div>
                                 </div>
@@ -281,11 +375,20 @@ class CreateNewProduct extends React.Component {
                         <Button onClick={this.close}>Close</Button>
                     </Modal.Footer>
                 </Modal>
+                <SweetAlert
+                    show={this.state.swal.show}
+                    title={this.state.swal.title}
+                    text={this.state.swal.text}
+                    type={this.state.swal.type}
+                    showConfirmButton={this.state.swal.confirm_button}
+                    onConfirm={this.dismissSwal}
+                    onOutsideClick={this.dismissSwal}
+                    />
             </div>
         )
     }
 };
-//<input type="number" className="form-control" onChange={this._onChange} 
-//id="category_id" name="category_id" placeholder="category_id" required="" />
+
+CreateNewProduct = validation(strategy)(CreateNewProduct);
 
 export default CreateNewProduct;

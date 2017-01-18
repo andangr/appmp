@@ -27,7 +27,7 @@ class ProductListRow extends React.Component {
                 <td>{this.props.details.category_id}</td>
                 <td>{this.props.details.sub_category_id}</td>
                 <td>{this.props.details.price}</td>
-                <td>{this.props.details.status}</td>
+                <td>{ (this.props.details.is_active == true) ? 'Active' : 'Inactive' }</td>
                 <td>
                     <EditProduct id={this.props.details.id} details={this.props.details}/><DeleteProductConfirm id={this.props.details.id}/>
                 </td>
