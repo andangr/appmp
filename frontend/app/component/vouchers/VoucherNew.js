@@ -3,6 +3,7 @@ import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
 import DatePicker from 'react-bootstrap-date-picker';
+import Toggle from 'react-toggle';
 import SweetAlert from 'sweetalert-react';
 import axios from 'axios';
 import validation from 'react-validation-mixin';
@@ -22,8 +23,8 @@ class VoucherNew extends React.Component {
             voucher: {
                 code: '',
                 name: '',
-                disc: 0,
-                max_claim: 1,
+                disc: null,
+                max_claim: null,
                 start_date: {
                     value: new Date().toISOString(),
                     formattedValue: ''
@@ -72,6 +73,7 @@ class VoucherNew extends React.Component {
 
     _submitHandler(e) {
         e.preventDefault();
+        console.log(this.state.voucher);
         this.props.validate(error => {
             if (!error) {
                 this.createVoucher();
@@ -177,7 +179,11 @@ class VoucherNew extends React.Component {
         this.props.handleValidation(e.target.name)(e);
     }
 
-
+    handleToggleChange() {
+        let voucher = this.state.voucher;
+        voucher.is_active = !voucher.is_active;
+        this.setState({voucher : voucher });
+    }
 
     dismissSwal() {
         let swal = this.state.swal;
@@ -266,18 +272,13 @@ class VoucherNew extends React.Component {
                             </div>
 
                             <div className="form-group ">
-                                <label className="font-normal">Status</label>
+                                <Toggle
+                                    id="is_active"
+                                    name="is_active"
+                                    checked={this.state.voucher.is_active}
+                                    onChange={this.handleToggleChange} />
+                                <span>Status</span>
 
-                                <div className="switch">
-                                    <div className="onoffswitch">
-                                        <input type="checkbox" name="is_active" onChange={this._onChange}
-                                            className="onoffswitch-checkbox" id="is_active" />
-                                        <label className="onoffswitch-label" htmlFor="is_active" >
-                                            <span className="onoffswitch-inner"></span>
-                                            <span className="onoffswitch-switch"></span>
-                                        </label>
-                                    </div>
-                                </div>
                             </div>
                         </form>
 

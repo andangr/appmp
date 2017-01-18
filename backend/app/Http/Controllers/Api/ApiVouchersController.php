@@ -11,7 +11,7 @@ use onestopcore\Voucher;
 
 class ApiVouchersController extends Controller {
     public function index(Request $request) {
-        $paginator = Voucher::paginate(3);
+        $paginator = Voucher::paginate(10);
         $vouchers = $paginator->getCollection();
 
         return fractal()

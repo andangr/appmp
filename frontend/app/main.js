@@ -38,4 +38,4 @@ ReactDOM.render((
 			<Route path="/confirmation" component={PaymentConfirmationPane}></Route>
 		</Route>
 	</Router>
-), document.getElementById('wrapper'))
+), document.getElementById('wrapper'));
