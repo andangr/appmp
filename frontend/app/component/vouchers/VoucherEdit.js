@@ -3,6 +3,7 @@ import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
 import DatePicker from 'react-bootstrap-date-picker';
+import Toggle from 'react-toggle';
 import SweetAlert from 'sweetalert-react';
 import axios from 'axios';
 import validation from 'react-validation-mixin';
@@ -23,8 +24,8 @@ class VoucherEdit extends React.Component {
             voucher: {
                 code: '',
                 name: '',
-                disc: 0,
-                max_claim: 1,
+                disc: null,
+                max_claim: null,
                 start_date: {
                     value: new Date().toISOString(),
                     formattedValue: ''
@@ -66,6 +67,12 @@ class VoucherEdit extends React.Component {
 
     }
 
+    handleToggleChange() {
+        let voucher = this.state.voucher;
+        voucher.is_active = !voucher.is_active;
+        this.setState({voucher : voucher });
+    }
+
     _submitHandler(e) {
         e.preventDefault();
         this.props.validate(error => {
@@ -77,8 +84,6 @@ class VoucherEdit extends React.Component {
     }
     
     componentWillMount() {
-        //var token = cookie.load('token');
-        //this.loadCategoryOptions(token);
         let voucher = this.props.details;
         voucher.start_date = {
             value : voucher.start_date,
@@ -89,7 +94,6 @@ class VoucherEdit extends React.Component {
             formattedValue : voucher.end_date
         };
         this.setState({voucher : voucher});
-        console.log(voucher);
 
     }
 
@@ -279,18 +283,12 @@ class VoucherEdit extends React.Component {
                             </div>
 
                             <div className="form-group ">
-                                <label className="font-normal">Status</label>
-
-                                <div className="switch">
-                                    <div className="onoffswitch">
-                                        <input type="checkbox" name="is_active" onChange={this._onChange}
-                                            className="onoffswitch-checkbox" id="is_active"  value={this.state.voucher.is_active} />
-                                        <label className="onoffswitch-label" htmlFor="is_active" >
-                                            <span className="onoffswitch-inner"></span>
-                                            <span className="onoffswitch-switch"></span>
-                                        </label>
-                                    </div>
-                                </div>
+                                <Toggle
+                                    id="is_active"
+                                    name="is_active"
+                                    checked={this.state.voucher.is_active}
+                                    onChange={this.handleToggleChange} />
+                                <span>Status</span>
                             </div>
                         </form>
 
@@ -302,6 +300,15 @@ class VoucherEdit extends React.Component {
                         <Button onClick={this.close}>Close</Button>
                     </Modal.Footer>
                 </Modal>
+                <SweetAlert
+                    show={this.state.swal.show}
+                    title={this.state.swal.title}
+                    text={this.state.swal.text}
+                    type={this.state.swal.type}
+                    showConfirmButton={this.state.swal.confirm_button}
+                    onConfirm={this.dismissSwal}
+                    onOutsideClick={this.dismissSwal}
+                    />
             </div>
         );
     }
