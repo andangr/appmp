@@ -12,7 +12,7 @@ import Options from '../helper/Options';
 import backend from '../../configs/backend';
 
 class DeleteProductConfirm extends React.Component {
-	constructor(props){
+    constructor(props) {
         super(props);
         autoBind(this);
 
@@ -30,9 +30,9 @@ class DeleteProductConfirm extends React.Component {
         };
     }
     componentWillMount() {
-        
-	}
-    deleteProduct(){
+
+    }
+    deleteProduct() {
         console.log('deleting');
         this.setState({
             swal: {
@@ -41,7 +41,7 @@ class DeleteProductConfirm extends React.Component {
                 text: 'We are deleting your data',
                 type: 'info',
                 confirm_button: false,
-                cancel_button : false
+                cancel_button: false
             }
         });
         var token = cookie.load('token');
@@ -53,32 +53,32 @@ class DeleteProductConfirm extends React.Component {
                 Authorization: 'Bearer ' + token
             }
         }).delete('/api/product/' + this.props.id)
-        .then(response => {
-            let swal = this.state.swal;
-            if (response.data.error) {
+            .then(response => {
+                let swal = this.state.swal;
+                if (response.data.error) {
+                    swal.title = 'Failed';
+                    swal.type = 'error';
+                } else {
+                    swal.title = 'Success';
+                    swal.type = 'success';
+                    swal.confirm_button = false;
+                }
+                swal.text = response.data.message;
+                this.setState({ swal: swal });
+                setTimeout(function () {
+                    location.reload();
+                }, 2000);
+
+            }).catch(error => {
+                let swal = this.state.swal;
+
+                swal.confirm_button = true;
                 swal.title = 'Failed';
                 swal.type = 'error';
-            } else {
-                swal.title = 'Success';
-                swal.type = 'success';
-                swal.confirm_button = false;
-            }
-            swal.text = response.data.message;
-            this.setState({ swal: swal });
-            setTimeout(function () {
-               location.reload();
-            }, 2000);
-            
-        }).catch(error => {
-            let swal = this.state.swal;
-
-            swal.confirm_button = true;
-            swal.title = 'Failed';
-            swal.type = 'error';
-            swal.text = 'Please check your connection';
-            this.setState({ swal: swal });
-            console.log(error);
-        });
+                swal.text = 'Please check your connection';
+                this.setState({ swal: swal });
+                console.log(error);
+            });
     }
     showSwal() {
         let swal = this.state.swal;
@@ -95,14 +95,14 @@ class DeleteProductConfirm extends React.Component {
     dismissSwal() {
         let swal = this.state.swal;
         swal.show = false;
-        this.setState({swal : swal});
+        this.setState({ swal: swal });
     }
-	render (){
-        
-		return (
+    render() {
+
+        return (
             <div className="row">
                 <div className="col-sm-12">
-                    <a className="pull-right" 
+                    <a className="pull-right"
                         onClick={this.showSwal} >
                         <i className="fa fa-trash"></i></a>
                 </div>
@@ -118,8 +118,8 @@ class DeleteProductConfirm extends React.Component {
                     onCancel={this.dismissSwal}
                     />
             </div>
-		)
-	}
+        )
+    }
 };
 
 export default DeleteProductConfirm;

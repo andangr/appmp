@@ -41,7 +41,7 @@ class VoucherDeleteConfirm extends React.Component {
                 text: 'We are deleting your data',
                 type: 'info',
                 confirm_button: false,
-                cancel_button : false
+                cancel_button: false
             }
         });
         var token = cookie.load('token');
@@ -53,29 +53,29 @@ class VoucherDeleteConfirm extends React.Component {
                 Authorization: 'Bearer ' + token
             }
         }).delete('/api/vouchers/' + this.props.id)
-        .then(response => {
-            let swal = this.state.swal;
-            if (response.data.error) {
+            .then(response => {
+                let swal = this.state.swal;
+                if (response.data.error) {
+                    swal.title = 'Gagal';
+                    swal.type = 'error';
+                } else {
+                    swal.title = 'Berhasil';
+                    swal.type = 'success';
+                    swal.confirm_button = true;
+                }
+                swal.text = response.data.message;
+                this.setState({ swal: swal });
+                location.reload();
+            }).catch(error => {
+                let swal = this.state.swal;
+
+                swal.confirm_button = true;
                 swal.title = 'Gagal';
                 swal.type = 'error';
-            } else {
-                swal.title = 'Berhasil';
-                swal.type = 'success';
-                swal.confirm_button = true;
-            }
-            swal.text = response.data.message;
-            this.setState({ swal: swal });
-            location.reload();
-        }).catch(error => {
-            let swal = this.state.swal;
-
-            swal.confirm_button = true;
-            swal.title = 'Gagal';
-            swal.type = 'error';
-            swal.text = 'Please check your connection';
-            this.setState({ swal: swal });
-            console.log(error);
-        });
+                swal.text = 'Please check your connection';
+                this.setState({ swal: swal });
+                console.log(error);
+            });
     }
 
     showSwal() {
@@ -94,7 +94,7 @@ class VoucherDeleteConfirm extends React.Component {
     dismissSwal() {
         let swal = this.state.swal;
         swal.show = false;
-        this.setState({swal : swal});
+        this.setState({ swal: swal });
     }
 
     render() {
