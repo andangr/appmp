@@ -3,6 +3,11 @@ import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
 import DatePicker from 'react-bootstrap-date-picker';
+import Toggle from 'react-toggle';
+import SweetAlert from 'sweetalert-react';
+import axios from 'axios';
+import validation from 'react-validation-mixin';
+import strategy from 'react-validatorjs-strategy';
 
 
 import backend from '../../configs/backend';
@@ -18,8 +23,8 @@ class VoucherNew extends React.Component {
             voucher: {
                 code: '',
                 name: '',
-                disc: 0,
-                max_claim: 1,
+                disc: null,
+                max_claim: null,
                 start_date: {
                     value: new Date().toISOString(),
                     formattedValue: ''
@@ -28,115 +33,112 @@ class VoucherNew extends React.Component {
                     value: new Date().toISOString(),
                     formattedValue: ''
                 },
-                status: false,
+                is_active: false,
+            },
+            swal: {
+                show: false,
+                title: '',
+                message: '',
+                type: 'info',
+                confirm_button: true,
             },
             showModal: false,
-            product: {},
-            categoriesdata: {
-                data: {}
-            },
-            subcategoriesdata: {
-                data: {}
-            },
-            selectedOption: 0
         };
 
-        this._handleImageChange = this._handleImageChange.bind(this);
-        this._onSubmit = this._onSubmit.bind(this);
+        this.validatorTypes = strategy.createSchema(
+            {
+                code: 'required',
+                name: 'required',
+                disc: 'required',
+                max_claim: 'required',
+            },
+            {
+
+            }
+        );
     }
 
     close() {
         this.setState({ showModal: false });
     }
+
     open() {
         this.setState({ showModal: true });
     }
-    optionCategoryChange(e) {
-        this.setState({ category_id: e.target.value });
-        console.log('option changed to ' + this.state.category_id);
-        var token = cookie.load('token');
-        this.loadSubcategoryOptions(token, e.target.value);
-    }
-    optionSubCategoryChange(e) {
-        this.setState({ sub_category_id: e.target.value });
-        //console.log('option changed to '+this.state.sub_category_id);
-    }
+
     componentWillMount() {
         var token = cookie.load('token');
         console.log(token);
     }
 
-    _handleImageChange(e) {
+    _submitHandler(e) {
         e.preventDefault();
-
-        let reader = new FileReader();
-        let file = e.target.files[0];
-        let filename = e.target.value;
-        let fileformat = filename.split('.').pop();
-        //console.log('filename : '+filename+' format : '+fileformat);
-        reader.onloadend = () => {
-            this.setState({
-                images: reader.result, //file,
-                imagePreviewUrl: reader.result,
-                fileformat: fileformat
-            });
-        };
-
-        reader.readAsDataURL(file);
+        console.log(this.state.voucher);
+        this.props.validate(error => {
+            if (!error) {
+                this.createVoucher();
+            }
+        });
 
     }
-    _create() {
+
+    createVoucher() {
+        this.setState({
+            swal: {
+                show: true,
+                title: 'Please wait...',
+                text: 'We are saving your data',
+                type: 'info',
+                confirm_button: false,
+            }
+        });
         var token = cookie.load('token');
-        return $.ajax({
-            url: backend.url + '/api/voucher/create',
-            type: 'GET',
-            data: {
-                vouchercode: this.state.voucher.code,
-                vouchername: this.state.voucher.name,
-                disc: this.statevoucher.disc,
-                maxclaim: this.state.voucher.max_claim,
-                startdate: this.state.voucher.start_date,
-                enddate: this.state.voucher.end_date,
-                status: this.state.voucher.status
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-                this.setState({ loading: true });
-            }.bind(this)
+        axios.create({
+            baseURL: backend.url,
+            timeout: 1000,
+            headers: {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + token
+            }
+        }).post('/api/vouchers', {
+            code: this.state.voucher.code,
+            name: this.state.voucher.name,
+            disc: this.state.voucher.disc,
+            max_claim: this.state.voucher.max_claim,
+            start_date: this.state.voucher.start_date.value,
+            end_date: this.state.voucher.end_date.value,
+            is_active: this.state.voucher.is_active
+        }).then(response => {
+            let swal = this.state.swal;
+            if (response.data.error) {
+                swal.title = 'Gagal';
+                swal.type = 'error';
+            } else {
+                swal.title = 'Berhasil';
+                swal.type = 'success';
+                swal.confirm_button = true;
+            }
+            swal.text = response.data.message;
+            this.setState({ swal: swal });
+            location.reload();
+        }).catch(error => {
+            let swal = this.state.swal;
+
+            swal.confirm_button = true;
+            swal.title = 'Gagal';
+            swal.type = 'error';
+            swal.text = 'Please check your connection';
+            this.setState({ swal: swal });
+            console.log(error);
         });
     }
-    _onSubmit(e) {
-        e.preventDefault();
-        console.log(this.state);
-        var xhr = this._create();
-        xhr.done(this._onSuccess)
-            .fail(this._onError)
-            .always(this.hideLoading);
-    }
-    _onSuccess(data) {
-        console.log(data);
-        console.log('success');
-        location.reload();
-    }
-    _onError(data) {
-        console.log(data);
-        console.log('error');
-        var message = 'Failed to login';
-        var res = data.responseJSON;
-        if (res.message) {
-            message = data.responseJSON.message;
-        }
-        console.log(message);
-        if (res.errors) {
-            this.setState({
-                errors: res.errors
-            });
-        }
-    }
+
     _onChange(e) {
         let newVoucher = this.state.voucher;
         newVoucher[e.target.name] = $.trim(e.target.value);
         this.setState({ voucher: newVoucher });
+
+        this.props.handleValidation(e.target.name)(e);
     }
 
     _onStartPickerChange(value, formattedValue) {
@@ -155,6 +157,38 @@ class VoucherNew extends React.Component {
         newEndDate['formattedValue'] = formattedValue;
         newVoucher['end_date'] = newEndDate;
         this.setState(newVoucher);
+    }
+
+    getValidatorData() {
+        return this.state.voucher;
+    }
+
+    getClassName(field) {
+        return this.props.isValid(field) ? '' : 'has-error';
+    }
+
+    renderErrors(messages) {
+        if (messages.length) {
+            messages = messages.map((message, i) => <li key={i} className="">{message}</li>);
+            return <ul className="errors">{messages}</ul>;
+        }
+    }
+
+    activateValidation(e) {
+        strategy.activateRule(this.validatorTypes, e.target.name);
+        this.props.handleValidation(e.target.name)(e);
+    }
+
+    handleToggleChange() {
+        let voucher = this.state.voucher;
+        voucher.is_active = !voucher.is_active;
+        this.setState({voucher : voucher });
+    }
+
+    dismissSwal() {
+        let swal = this.state.swal;
+        swal.show = false;
+        this.setState({ swal: swal });
     }
 
     render() {
@@ -177,52 +211,56 @@ class VoucherNew extends React.Component {
                         <form role="form" className="css-form" >
 
                             <div className="col-lg-12" >
-                                <div className="form-group ">
+                                <div className={this.getClassName('code') + ' form-group'}>
                                     <label className="  control-label">Voucher Code </label>
                                     <div >
-                                        <input type="text" name="vouchercode" onChange={this._onChange}
+                                        <input type="text" name="code" onChange={this._onChange}
                                             placeholder="CODE01" className="form-control" />
+                                        {this.renderErrors(this.props.getValidationMessages('code'))}
                                     </div>
                                 </div>
                             </div>
                             <div className="col-lg-12"  >
-                                <div className="form-group ">
+                                <div className={this.getClassName('name') + ' form-group'}>
                                     <label className="  control-label">Voucher Name </label>
                                     <div>
-                                        <input type="text" name="vouchername" onChange={this._onChange}
+                                        <input type="text" name="name" onChange={this._onChange}
                                             placeholder="Voucher Name" className="form-control" />
+                                        {this.renderErrors(this.props.getValidationMessages('name'))}
                                     </div>
                                 </div>
                             </div>
                             <div className="col-lg-6"  >
-                                <div className="form-group ">
+                                <div className={this.getClassName('disc') + ' form-group'}>
                                     <label className="  control-label">Disc in % </label>
                                     <div>
                                         <input type="number" name="disc" onChange={this._onChange}
-                                            placeholder="10" className="form-control" />
+                                            placeholder="10" className="form-control" min="1" />
+                                        {this.renderErrors(this.props.getValidationMessages('disc'))}
                                     </div>
                                 </div>
                             </div>
                             <div className="col-lg-6"  >
-                                <div className="form-group ">
+                                <div className={this.getClassName('max_claim') + ' form-group'}>
                                     <label className=" control-label">Max Claim </label>
                                     <div  >
                                         <input type="number" onChange={this._onChange}
-                                            name="maxclaim" placeholder="1" className="form-control" />
+                                            name="max_claim" placeholder="1" min="1" className="form-control" />
+                                        {this.renderErrors(this.props.getValidationMessages('max_claim'))}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="form-group col-lg-6" id="startdate">
+                            <div className={this.getClassName('start_date') + ' form-group col-lg-6'}>
                                 <label className="font-normal">Start date</label>
                                 <DatePicker id="start_date"
                                     name="start_date"
                                     value={this.state.voucher.start_date.value}
                                     onChange={this._onStartPickerChange}
                                     />
-
+                                {this.renderErrors(this.props.getValidationMessages('start_date'))}
                             </div>
-                            <div className="form-group col-lg-6" id="enddate">
+                            <div className={this.getClassName('end_date') + ' form-group col-lg-6'}>
                                 <label className="font-normal">End date</label>
 
                                 <DatePicker id="end_date"
@@ -230,35 +268,42 @@ class VoucherNew extends React.Component {
                                     value={this.state.voucher.end_date.value}
                                     onChange={this._onEndPickerChange}
                                     />
+                                {this.renderErrors(this.props.getValidationMessages('end_date'))}
                             </div>
 
                             <div className="form-group ">
-                                <label className="font-normal">Status</label>
+                                <Toggle
+                                    id="is_active"
+                                    name="is_active"
+                                    checked={this.state.voucher.is_active}
+                                    onChange={this.handleToggleChange} />
+                                <span>Status</span>
 
-                                <div className="switch">
-                                    <div className="onoffswitch">
-                                        <input type="checkbox" name="status" onChange={this._onChange}
-                                            className="onoffswitch-checkbox" id="status" />
-                                        <label className="onoffswitch-label" htmlFor="status" >
-                                            <span className="onoffswitch-inner"></span>
-                                            <span className="onoffswitch-switch"></span>
-                                        </label>
-                                    </div>
-                                </div>
                             </div>
                         </form>
 
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={(e) => this._onSubmit(e)} bsStyle="success">
+                        <Button onClick={(e) => this._submitHandler(e)} bsStyle="success">
                             Save
                         </Button>
                         <Button onClick={this.close}>Close</Button>
                     </Modal.Footer>
                 </Modal>
+                <SweetAlert
+                    show={this.state.swal.show}
+                    title={this.state.swal.title}
+                    text={this.state.swal.text}
+                    type={this.state.swal.type}
+                    showConfirmButton={this.state.swal.confirm_button}
+                    onConfirm={this.dismissSwal}
+                    onOutsideClick={this.dismissSwal}
+                    />
             </div>
         );
     }
 }
+
+VoucherNew = validation(strategy)(VoucherNew);
 
 export default VoucherNew;

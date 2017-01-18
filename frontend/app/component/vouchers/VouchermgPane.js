@@ -69,7 +69,7 @@ class VouchermgPane extends React.Component {
                         <div className="col-lg-12">
                             <div className="ibox float-e-margins">
                                 <div className="ibox-title text-center">
-                                    <h3><i className="fa fa-pencil"></i> Vouchers List </h3>
+                                    <h3><i className="fa fa-pencil"></i> Vouchers List</h3>
 
                                 </div>
 
