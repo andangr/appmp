@@ -192,7 +192,7 @@ class EditProduct extends React.Component {
             let swal = this.state.swal;
 
             swal.confirm_button = true;
-            swal.title = 'Gagal';
+            swal.title = 'Failed';
             swal.type = 'error';
             swal.text = 'Please check your connection';
             this.setState({ swal: swal });

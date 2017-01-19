@@ -91,13 +91,15 @@ class ApiProductController extends Controller
            'images' => $product->images[0]
        );
        $oData = $product;
-       if($product->images[0]){
+       if($product->images){
             $oData->imagePreviewUrl = $product->images[0]->image_url;
        }
        unset($oData->images);
        $oData->category = $this->_getCategoryName($product->category_id);
        $oData->subcategory =  $this->_getSubCategoryName($product->sub_category_id);
-       return $oData;
+
+       return response()->json(['code' => 200, 'error' => false, 'message' => 'Product is deleted', 'data' => $oData], 200);
+       //return $oData;
    }
 
     private function _getCategoryName($id){

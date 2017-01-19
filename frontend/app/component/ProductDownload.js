@@ -3,9 +3,10 @@ import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 
 import GetProduct from './GetProduct';
-
+import SosmedShare from './helper/SosmedShare';
 import backend from '../configs/backend';
 import frontend from '../configs/frontend';
+
 
 class ProductDownload extends React.Component {
 	constructor(props){
@@ -30,7 +31,7 @@ class ProductDownload extends React.Component {
         }
     }
     loadProductData(token, id){
-		fetch( backend.url +`/api/landing/product/`+id+`/detail`, { 
+		fetch( backend.url +`/api/product/details/`+id, { 
                 headers: {
                     'Authorization': 'Bearer '+token
                 }
@@ -99,6 +100,10 @@ class ProductDownload extends React.Component {
         this.setState(state);
     }
 	render (){
+        
+        const shareUrl = location.protocol+"//"+window.location.host+"/#/product/detail/"+this.props.params.id;
+        const title = "What an awesome product. Get it now!!! or explore u'r fav book, movie, music, & app here.";
+
 		return (
              <div className="col-lg-9">
                 
@@ -129,7 +134,8 @@ class ProductDownload extends React.Component {
                                                 </button>
                                             </div>
                                         </div>
-                                        <div className="col-md-4  text-center">
+                                        <div className="col-md-1  text-center">
+                                            <SosmedShare title={title} shareUrl={shareUrl} />
                                         </div>
                                     </div>
                                 </div>

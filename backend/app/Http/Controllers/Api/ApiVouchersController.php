@@ -10,7 +10,11 @@ use onestopcore\Transformers\VoucherTransformer;
 use onestopcore\Voucher;
 
 class ApiVouchersController extends Controller {
-    public function index(Request $request) {
+    /**
+     * Getting the lists of vouchers
+     * @return json           List of vouchers with pagination
+     */
+    public function index() {
         $paginator = Voucher::paginate(10);
         $vouchers = $paginator->getCollection();
 
@@ -21,6 +25,11 @@ class ApiVouchersController extends Controller {
             ->toArray();
     }
 
+    /**
+     * Storing voucher data
+     * @param  Request $request All voucher related data
+     * @return json           basis json response
+     */
     public function store(Request $request) {
         DB::beginTransaction();
         try {
@@ -39,6 +48,12 @@ class ApiVouchersController extends Controller {
         return response()->json(['code' => 200, 'error' => false, 'message' => 'Berhasil menyimpan voucher'], 200);
     }
 
+    /**
+     * Update voucher data
+     * @param  Request $request All voucher related data
+     * @param  integer  $id      voucher id
+     * @return json          basic json response
+     */
     public function update(Request $request, $id) {
         DB::beginTransaction();
         try {
@@ -57,7 +72,12 @@ class ApiVouchersController extends Controller {
         return response()->json(['code' => 200, 'error' => false, 'message' => 'Berhasil mengubah voucher'], 200);
     }
 
-    public function destroy(Request $request, $id) {
+    /**
+     * Delete voucher
+     * @param  integer $id voucher id
+     * @return json    basic json response
+     */
+    public function destroy($id) {
         DB::beginTransaction();
         try {
             Voucher::findOrFail($id)->delete();
@@ -69,6 +89,10 @@ class ApiVouchersController extends Controller {
         return response()->json(['code' => 200, 'error' => false, 'message' => 'Berhasil menghapus voucher'], 200);
     }
 
+    /**
+     * Get latest voucher id
+     * @return integer new voucher id
+     */
     public function getNextStatementId() {
         $next_id = DB::select("select nextval('voucher_id_seq')");
         return intval($next_id['0']->nextval);
