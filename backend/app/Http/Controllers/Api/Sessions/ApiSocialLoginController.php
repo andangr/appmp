@@ -7,6 +7,12 @@ use onestopcore\Http\Controllers\Controller;
 use onestopcore\User;
 
 class ApiSocialLoginController extends Controller {
+
+    /**
+     * Login with social media
+     * @param  Request $request
+     * @return mixed
+     */
     public function socialLogin(Request $request) {
         $user = User::where('email', '=', $request->email)->first();
         if ($user == null) {
@@ -15,6 +21,11 @@ class ApiSocialLoginController extends Controller {
         return $this->sendResponse($user);
     }
 
+    /**
+     * Register based on new data
+     * @param  Request $request
+     * @return User User object
+     */
     protected function register(Request $request) {
         return User::create([
             'name' => $request->name,
@@ -23,6 +34,11 @@ class ApiSocialLoginController extends Controller {
         ]);
     }
 
+    /**
+     * Send access token
+     * @param  User   $user
+     * @return mixed
+     */
     protected function sendResponse(User $user) {
         $token = $user->createToken('social')->accessToken;
         return response()->json(['code' => 200, 'error' => false, 'message' => 'Success login', 'access_token' => $token], 200);
