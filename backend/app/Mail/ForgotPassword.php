@@ -10,7 +10,15 @@ use onestopcore\User;
 class ForgotPassword extends Mailable {
     use Queueable, SerializesModels;
 
+    /**
+     * User object
+     * @var User
+     */
     protected $user;
+    /**
+     * Reset password token
+     * @var String
+     */
     protected $token;
 
     /**

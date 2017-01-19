@@ -3,12 +3,11 @@
 namespace onestopcore\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use onestopcore\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use onestopcore\Http\Controllers\Controller;
 
-class ApiLoginController extends Controller
-{
+class ApiLoginController extends Controller {
     /**
      * @var object
      */
@@ -17,8 +16,7 @@ class ApiLoginController extends Controller
     /**
      * DefaultController constructor.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->client = DB::table('oauth_clients')->where('id', 2)->first();
     }
 
@@ -26,15 +24,14 @@ class ApiLoginController extends Controller
      * @param Request $request
      * @return mixed
      */
-    protected function authenticate(Request $request)
-    {
+    protected function authenticate(Request $request) {
         $request->request->add([
             'username' => $request->username,
             'password' => $request->password,
             'grant_type' => 'password',
             'client_id' => $this->client->id,
             'client_secret' => $this->client->secret,
-            'scope' => '*'
+            'scope' => '*',
         ]);
 
         $proxy = Request::create(
@@ -49,8 +46,7 @@ class ApiLoginController extends Controller
      * @param Request $request
      * @return mixed
      */
-    protected function refreshToken(Request $request)
-    {
+    protected function refreshToken(Request $request) {
         $request->request->add([
             'grant_type' => 'refresh_token',
             'refresh_token' => $request->refresh_token,
@@ -65,4 +61,5 @@ class ApiLoginController extends Controller
 
         return Route::dispatch($proxy);
     }
+
 }
