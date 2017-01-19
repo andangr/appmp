@@ -68,7 +68,6 @@ Route::get('register/test', 'Api\ApiRegisterController@test');
 Route::group(['middleware' => ['cors', 'auth:api'], 'prefix' => 'api'], function () {
     Route::get('getuserdetails', 'UserController@getUserDetails');
 
-    Route::resource('voucher', 'VoucherapiController');
     Route::resource('product', 'Api\ApiProductController');
     Route::get('product/details/{id}', 'Api\ApiProductController@details');
     Route::post('product/generatedownloadurl', 'Api\ApiProductDownloadController@generateDownloadUrl');

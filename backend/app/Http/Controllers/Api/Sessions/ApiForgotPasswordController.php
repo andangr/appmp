@@ -9,6 +9,11 @@ use onestopcore\Mail\ForgotPassword;
 use onestopcore\User;
 
 class ApiForgotPasswordController extends Controller {
+    /**
+     * Generate token and send reset link if email is registered
+     * @param  Request $request
+     * @return json
+     */
     public function forgotPassword(Request $request) {
         $user = User::where('email', '=', $request->get('email'))->first();
         if ($user) {
@@ -28,7 +33,13 @@ class ApiForgotPasswordController extends Controller {
         }
     }
 
+    /**
+     * Sending email to user
+     * @param  User   $user
+     * @param  String $token Reset password token
+     * @return mixed
+     */
     public function sendEmail(User $user, $token) {
-        Mail::to($user)->send(new ForgotPassword($user, $token));
+        return Mail::to($user)->send(new ForgotPassword($user, $token));
     }
 }

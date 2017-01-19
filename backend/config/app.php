@@ -171,6 +171,8 @@ return [
         Laravel\Passport\PassportServiceProvider::class,
         Spatie\Tail\TailServiceProvider::class,
         Spatie\Fractal\FractalServiceProvider::class,
+        Laravel\Socialite\SocialiteServiceProvider::class,
+
         //
 
         /*
@@ -231,6 +233,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Paypalpayment' => Anouar\Paypalpayment\Facades\PaypalPayment::class,
         'Fractal' => Spatie\Fractal\FractalFacade::class,
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
 
     ],
 

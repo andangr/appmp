@@ -5,7 +5,7 @@ import cookie from 'react-cookie';
 import SweetAlert from 'sweetalert-react';
 import validation from 'react-validation-mixin';
 import strategy from 'react-validatorjs-strategy';
-
+import SocialLoginPane from './SocialLoginPane';
 import backend from '../configs/backend';
 import frontend from '../configs/frontend';
 
@@ -101,7 +101,7 @@ class LoginPane extends React.Component {
             alert_message: response.message
         });
     }
-    
+
     _onChange(e) {
         var state = {};
         state[e.target.name] = $.trim(e.target.value);
@@ -122,6 +122,7 @@ class LoginPane extends React.Component {
             return <ul className="errors">{messages}</ul>;
         }
     }
+
 
 
     render() {
@@ -161,14 +162,19 @@ class LoginPane extends React.Component {
                             </div>
 
                             <button className="btn btn-success block full-width m-b">Login</button>
-                            <br />
-                            <Link className="" to={'/forgot_password'}>Forgot password?</Link>
 
-                            <p className="text-muted text-center">
-                                <small>Do not have an account?</small>
-                            </p>
-                            <Link className="btn btn-sm btn-white btn-block" to={'/register'}>Create an account </Link>
                         </form>
+                        <br />
+                        <Link className="" to={'/forgot_password'}>Forgot password?</Link>
+
+                        <p className="text-muted text-center">
+                            <small>Do not have an account?</small>
+                        </p>
+                        <Link className="btn btn-sm btn-white btn-block" to={'/register'}>Create an account </Link>
+                        <p className="text-muted text-center">
+                            <small>or login using these social media</small>
+                        </p>
+                        <SocialLoginPane/>
                     </div>
                 </div>
                 <SweetAlert
