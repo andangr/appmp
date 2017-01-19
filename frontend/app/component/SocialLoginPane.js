@@ -43,13 +43,23 @@ class SocialLoginPane extends React.Component {
     }
 
     responseGoogle(googleUser) {
-        console.log('basic profile');
-        console.log(googleUser.getBasicProfile());
         var auth_response = googleUser.getAuthResponse();
-        var id_token = auth_response.id_token;
-        console.log('auth response');
-        console.log(auth_response);
-        //anything else you want to do(save to localStorage)...
+        this.getGoogleUserData(auth_response.access_token);
+    }
+
+    getGoogleUserData(access_token) {
+        axios({
+            method: 'GET',
+            url : 'https://www.googleapis.com/plus/v1/people/me?access_token='+access_token
+        }).then(response => {
+            console.log(response);
+            this.setState({
+                user: response.data.displayName,
+                email: response.data.emails[0].value,
+                password : Math.random().toString(36).substring(7)
+            });
+            this.socialLogin();
+        });
     }
 
     socialLogin() {
@@ -60,7 +70,7 @@ class SocialLoginPane extends React.Component {
                 Accept: 'application/json'
             },
             data: {
-                name: this.state.name,
+                name: this.state.user,
                 email: this.state.email,
                 password: this.state.password
             }
@@ -98,7 +108,7 @@ class SocialLoginPane extends React.Component {
                     buttonText="Login With Facebook" />
                 <GoogleLogin socialId="312488365228-g2mcp8jg208naea308o2f4j1qd4th0bc.apps.googleusercontent.com"
                     class="google-login"
-                    scope="profile"
+                    scope="profile email"
                     responseHandler={this.responseGoogle}
                     buttonText="Login With Google" />
                 <SweetAlert
