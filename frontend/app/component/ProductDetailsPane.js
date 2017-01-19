@@ -1,52 +1,69 @@
 import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
+import { ShareButtons, ShareCounts, generateShareIcon } from 'react-share';
+import SweetAlert from 'sweetalert-react';
+import axios from 'axios';
+
+import 'sweetalert/dist/sweetalert.css';
 
 import GetProduct from './GetProduct';
-
+import SosmedShare from './helper/SosmedShare';
 import backend from '../configs/backend';
 import frontend from '../configs/frontend';
 
 class ProductDetails extends React.Component {
-	constructor(props){
+    constructor(props) {
         super(props);
         autoBind(this);
 
         this.state = {
-            "id": 0,
-            "product_name": "",
-            "package_code": "",
-            "price": "",
-            "description": "",
-            "category_id": 4,
-            "sub_category_id": 0,
-            "compatibility": "",
-            "urldownload": "",
-            "status": "",
-            "created": "",
-            "imagePreviewUrl": "",
-            "category": "",
-            "subcategory": ""
+            product : {
+                id: 0,
+                product_name: '',
+                package_code: '',
+                price: '',
+                description: '',
+                category_id: '',
+                sub_category_id: '',
+                compatibility: '',
+                urldownload: '',
+                status: '',
+                created: '',
+                imagePreviewUrl: '',
+                category: '',
+                subcategory: '',
+            },
+            swal: {
+                show: false,
+                title: '',
+                message: '',
+                type: 'info',
+                confirm_button: true,
+            }
         }
     }
-    loadProductData(token, id){
-		fetch(backend.url + `/api/landing/product/`+id+`/detail`, { 
-                headers: {
-                    'Authorization': 'Bearer '+token
-                }
-            })
-			.then(result=>result.json())
-			.then(resp=>this.setState(resp))
+    loadProductData(token, id) {
         
-	}
+        fetch(backend.url + `/api/product/details/` + id, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(result => result.json())
+            .then(resp => this.setState({ product : resp.data }))
+    }
     componentWillMount() {
         var token = cookie.load('token');
-		this.loadProductData(token, this.props.params.productid)
-	}
-    
-	render (){
-		return (
-             <div className="col-lg-12">
+        this.loadProductData(token, this.props.params.productid);
+        console.log(this.state);
+    }
+
+    render() {
+        const shareUrl = location.protocol + "//" + window.location.host + "/#/product/detail/" + this.props.params.id;
+        const title = "What an awesome product. Get it now!!! or explore u'r fav book, movie, music, & app here.";
+        return (
+            <div className="col-lg-12">
                 <div className="wrapper wrapper-content animated fadeInRight">
 
                     <div className="row">
@@ -57,28 +74,29 @@ class ProductDetails extends React.Component {
 
                                     <div className="row">
                                         <div className="col-md-5">
-                                                <div>
-                                                    <div className="ibox-content no-padding image-imitation">
-                                                        <img src={this.state.imagePreviewUrl} className="img-thumbnail" />
-                                                        
-                                                    </div>
+                                            <div>
+                                                <div className="ibox-content no-padding image-imitation">
+                                                    <img src={this.state.product.imagePreviewUrl} className="img-thumbnail" />
+
                                                 </div>
+                                            </div>
+
                                         </div>
-                                        <div className="col-md-7">
+                                        <div className="col-md-6">
 
                                             <h2 className="font-bold m-b-xs">
-                                                {this.state.product_name} 
+                                                {this.state.product.product_name}
                                             </h2>
-                                            <small> {this.state.compatibility}  </small>
+                                            <small> {this.state.product.compatibility}  </small>
                                             <div className="m-t-md">
-                                                <h2 className="product-main-price">Rp {this.state.price} <small className="text-muted">Include Tax</small> </h2>
+                                                <h2 className="product-main-price">Rp {this.state.product.price} <small className="text-muted">Include Tax</small> </h2>
                                             </div>
                                             <hr />
 
                                             <h4>Product description</h4>
 
                                             <div className="small text-muted">
-                                                {this.state.description}
+                                                {this.state.product.description}
                                             </div>
                                             <dl className="small m-t-md">
                                                 <dt>Description lists</dt>
@@ -92,15 +110,18 @@ class ProductDetails extends React.Component {
                                             <hr />
 
                                             <div>
-                                                <GetProduct details={this.state}/>
+                                                <GetProduct details={this.state} />
                                             </div>
+                                        </div>
+                                        <div className="col-md-1">
+                                            <SosmedShare title={title} shareUrl={shareUrl} />
                                         </div>
                                     </div>
 
                                 </div>
                                 <div className="ibox-footer">
-                                            <span className="pull-right">
-                                                Full stock - <i className="fa fa-clock-o"></i> 14.04.2016 10:04 pm
+                                    <span className="pull-right">
+                                        Full stock - <i className="fa fa-clock-o"></i> 14.04.2016 10:04 pm
                                             </span>
                                     The generated Lorem Ipsum is therefore always free
                                 </div>
@@ -110,8 +131,8 @@ class ProductDetails extends React.Component {
                     </div>
                 </div>
             </div>
-		)
-	}
+        )
+    }
 };
 
 export default ProductDetails;
