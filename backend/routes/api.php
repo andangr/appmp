@@ -22,5 +22,6 @@ Route::group(['middleware' => ['cors'], 'namespace' => 'Api'], function () {
 
     Route::group(['middleware' => ['auth:api']], function () {
         Route::resource('vouchers', 'ApiVouchersController', ['except' => ['create', 'edit']]);
+        Route::resource('users', 'ApiUsersController', ['except' => ['create', 'edit']]);
     });
 });
