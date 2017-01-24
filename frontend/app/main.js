@@ -18,6 +18,7 @@ import ProductDownload from './component/ProductDownload';
 import ProductPaymentThankyou from './component/ProductPaymentThankyou';
 import VouchermgPane from './component/vouchers/VouchermgPane';
 import ForgotPasswordPane from './component/ForgotPasswordPane';
+import UserMgPane from './component/users/UserMgPane';
  
 ReactDOM.render((
 	<Router history={hashHistory} >
@@ -32,6 +33,7 @@ ReactDOM.render((
 			<Route path="/register" component={RegisterPane}></Route>
 			<Route path="/createproduct" component={CreateProductPane}></Route>
 			<Route path="/vouchermg" component={VouchermgPane}></Route>
+            <Route path="/usersmg" component={UserMgPane}></Route>
 			<Route path="/payment/thankyou/:id" component={ProductPaymentThankyou}></Route>
 			<Route path="/product/download/:id/:tokendownload" component={ProductDownload} />
 			<Route path="/reset_password" component={ResetPasswordPane} />
