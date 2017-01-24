@@ -9,36 +9,36 @@ import backend from '../configs/backend';
 import frontend from '../configs/frontend';
 
 class ConditionalMenu extends React.Component {
-	constructor(props){
+    constructor(props) {
         super(props);
         autoBind(this);
 
         this.state = {
-            logged : false,
+            logged: false,
             datauser: {
-                user:{},
-                role:[]
+                user: {},
+                role: []
             }
-        }
+        };
 
     }
-    getDataUser(token){
-        fetch(backend.url + `/api/getuserdetails`, { 
-                headers: {
-                    'Authorization': 'Bearer '+token
-                }
-            })
-			.then(result=>result.json())
-			.then(datauser=>this.setState({datauser}))
+    getDataUser(token) {
+        fetch(backend.url + '/api/getuserdetails', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(result => result.json())
+            .then(datauser => this.setState({ datauser }));
     }
-	
+
     componentWillMount() {
         var token = cookie.load('token');
-        if(token){
+        if (token) {
             this.getDataUser(token);
         }
-	}
-    isAdmin(){
+    }
+    isAdmin() {
         var admin = false;
         var roles = this.state.datauser.role;
         var i = 0;
@@ -52,35 +52,35 @@ class ConditionalMenu extends React.Component {
         cookie.save('role', 'guest');
         cookie.save('username', this.state.datauser.email);
         //this.state.datauser.role.map(function(name, index){
-                
-            if (this.state.datauser.role == 'ROLE_ADMIN'){
-                cookie.save('role', 'admin');
-                //console.log(name);
-                admin = true;
-            }
+
+        if (this.state.datauser.role == 'ROLE_ADMIN') {
+            cookie.save('role', 'admin');
+            //console.log(name);
+            admin = true;
+        }
         //});
         return admin;
     }
-    getConditionalMenu(){
-        
-        if(this.state.datauser.role){ 
-            var role = this.state.datauser.role 
+    getConditionalMenu() {
+
+        if (this.state.datauser.role) {
+            var role = this.state.datauser.role
             var admin = this.isAdmin();
             //console.log('role exist '+admin)
-            if(admin){
+            if (admin) {
                 //console.log('admin pane')
-                
+
                 return (<AdminMenuPane />);
             }
         }
 
         return null;
     }
-    
-	render (){
-        
-		return this.getConditionalMenu();
-	}
+
+    render() {
+
+        return this.getConditionalMenu();
+    }
 };
 
 export default ConditionalMenu;

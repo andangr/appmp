@@ -20,6 +20,9 @@ class AdminMenuPane extends React.Component {
                         <li>
                             <Link to={'/vouchermg'} ><i className="fa fa-shopping-cart"></i> <span className="nav-label">Voucher Management</span> </Link>
                         </li>
+                        <li>
+                            <Link to={'/usersmg'} ><i className="fa fa-users"></i> <span className="nav-label">User Management</span> </Link>
+                        </li>
                     </ul>
 
                 </div>
