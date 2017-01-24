@@ -3,7 +3,6 @@ import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { ShareButtons, ShareCounts, generateShareIcon } from 'react-share';
 import SweetAlert from 'sweetalert-react';
-import axios from 'axios';
 
 import 'sweetalert/dist/sweetalert.css';
 
@@ -18,7 +17,7 @@ class ProductDetails extends React.Component {
         autoBind(this);
 
         this.state = {
-            product : {
+            product: {
                 id: 0,
                 product_name: '',
                 package_code: '',
@@ -44,14 +43,14 @@ class ProductDetails extends React.Component {
         }
     }
     loadProductData(token, id) {
-        
+
         fetch(backend.url + `/api/product/details/` + id, {
             headers: {
                 'Authorization': 'Bearer ' + token
             }
         })
             .then(result => result.json())
-            .then(resp => this.setState({ product : resp.data }))
+            .then(resp => this.setState({ product: resp.data }))
     }
     componentWillMount() {
         var token = cookie.load('token');
@@ -110,7 +109,7 @@ class ProductDetails extends React.Component {
                                             <hr />
 
                                             <div>
-                                                <GetProduct details={this.state} />
+                                                <GetProduct details={this.state.product} />
                                             </div>
                                         </div>
                                         <div className="col-md-1">
