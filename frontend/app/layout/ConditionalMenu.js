@@ -64,7 +64,7 @@ class ConditionalMenu extends React.Component {
     getConditionalMenu() {
 
         if (this.state.datauser.role) {
-            var role = this.state.datauser.role
+            var role = this.state.datauser.role;
             var admin = this.isAdmin();
             //console.log('role exist '+admin)
             if (admin) {
@@ -81,6 +81,6 @@ class ConditionalMenu extends React.Component {
 
         return this.getConditionalMenu();
     }
-};
+}
 
 export default ConditionalMenu;

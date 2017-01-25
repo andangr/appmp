@@ -1,39 +1,27 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { Link } from 'react-router';
+import autoBind from 'react-autobind';
 
-import cookie from 'react-cookie';
-
-var ReactRouter = require('react-router');
-var PureRenderMixin = require('react-addons-pure-render-mixin');
-
-
-var browserHistory = ReactRouter.browserHistory;
-var Route = ReactRouter.Route;
-var Router = ReactRouter.Router;
-var Link = ReactRouter.Link;
- 
 
 import BasicMenu from './BasicMenu';
 import ConditionalMenu from './ConditionalMenu';
-import Menu from '../component/Menu';
 import MenusPane from '../component/MenusPane';
 
 
-var MenuClass = React.createClass({
-	getInitialState: function(){
-		return {
-			"items" : {}
-		}
-	},
-	/*componentWillMount: function(){
-		fetch(`http://172.19.16.172:8011/app_dev.php/api/getproductsreact`)
-			.then(result=>result.json())
-			.then(items=>this.setState({items}))
-	},*/
-	render: function(){
-		return (
+class TopNav extends React.Component {
+    constructor(props) {
+        super(props);
+        autoBind(this);
+
+        this.state = {
+            items : {}
+        };
+    }
+
+    render() {
+        return (
 			<div>
-			<div className="container">
+			<div className="container-fluid">
 				<div className="navbar-header">
 					<button type="button" className="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
 						<span className="sr-only">Toggle navigation</span>
@@ -41,7 +29,7 @@ var MenuClass = React.createClass({
 						<span className="icon-bar"></span>
 						<span className="icon-bar"></span>
 					</button>
-					<a className="navbar-brand" href="http://172.19.16.156:8020/">1StopClick</a>
+					<Link className="navbar-brand" to={'/'} >1StopClick</Link>
 				</div>
 				<div className="collapse navbar-collapse col-md-6" id="menus">
 					<MenusPane />
@@ -52,11 +40,8 @@ var MenuClass = React.createClass({
 			<ConditionalMenu />
 			
 			</div>
-		);
-	}
-	
-})
+        );
+    }
+}
 
-export default MenuClass;
-
-//ReactDOM.render(<App />, document.getElementById('app'))
+export default TopNav;
