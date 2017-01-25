@@ -16,7 +16,7 @@ class VouchermgPane extends React.Component {
 
         this.state = {
             balance: {},
-            vouchers: {},
+            vouchers: [],
             pagination: {
                 total: 0,
                 count: 0,

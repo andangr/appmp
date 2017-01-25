@@ -2,7 +2,9 @@ import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import { Button, Modal } from 'react-bootstrap';
-import DatePicker from 'react-bootstrap-date-picker';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
+
 import Toggle from 'react-toggle';
 import SweetAlert from 'sweetalert-react';
 import axios from 'axios';
@@ -13,6 +15,7 @@ import strategy from 'react-validatorjs-strategy';
 import backend from '../../configs/backend';
 
 import 'sweetalert/dist/sweetalert.css';
+import 'react-datepicker/dist/react-datepicker.css';
 
 
 class VoucherEdit extends React.Component {
@@ -26,14 +29,8 @@ class VoucherEdit extends React.Component {
                 name: '',
                 disc: null,
                 max_claim: null,
-                start_date: {
-                    value: new Date().toISOString(),
-                    formattedValue: ''
-                },
-                end_date: {
-                    value: new Date().toISOString(),
-                    formattedValue: ''
-                },
+                start_date: moment(),
+                end_date: moment(),
                 is_active: false,
             },
             swal: {
@@ -70,7 +67,7 @@ class VoucherEdit extends React.Component {
     handleToggleChange() {
         let voucher = this.state.voucher;
         voucher.is_active = !voucher.is_active;
-        this.setState({voucher : voucher });
+        this.setState({ voucher: voucher });
     }
 
     _submitHandler(e) {
@@ -82,18 +79,12 @@ class VoucherEdit extends React.Component {
         });
 
     }
-    
+
     componentWillMount() {
         let voucher = this.props.details;
-        voucher.start_date = {
-            value : voucher.start_date,
-            formattedValue : voucher.start_date
-        };
-        voucher.end_date = {
-            value : voucher.end_date,
-            formattedValue : voucher.end_date
-        };
-        this.setState({voucher : voucher});
+        voucher['start_date'] = moment(voucher.start_date);
+        voucher['end_date'] = moment(voucher.end_date);
+        this.setState({ voucher: voucher });
 
     }
 
@@ -120,18 +111,19 @@ class VoucherEdit extends React.Component {
             name: this.state.voucher.name,
             disc: this.state.voucher.disc,
             max_claim: this.state.voucher.max_claim,
-            start_date: this.state.voucher.start_date.value,
-            end_date: this.state.voucher.end_date.value,
+            start_date: this.state.voucher.start_date,
+            end_date: this.state.voucher.end_date,
             is_active: this.state.voucher.is_active
         }).then(response => {
             let swal = this.state.swal;
             if (response.data.error) {
                 swal.title = 'Gagal';
                 swal.type = 'error';
+                swal.confirm_button = true;
             } else {
                 swal.title = 'Berhasil';
                 swal.type = 'success';
-                swal.confirm_button = true;
+                swal.confirm_button = false;
             }
             swal.text = response.data.message;
             this.setState({ swal: swal });
@@ -157,21 +149,15 @@ class VoucherEdit extends React.Component {
         this.props.handleValidation(e.target.name)(e);
     }
 
-    _onStartPickerChange(value, formattedValue) {
+    _onStartPickerChange(value) {
         let newVoucher = this.state.voucher;
-        let newStartDate = this.state.voucher.start_date;
-        newStartDate['value'] = value;
-        newStartDate['formattedValue'] = formattedValue;
-        newVoucher['start_date'] = newStartDate;
+        newVoucher['start_date'] = value;
         this.setState(newVoucher);
     }
 
-    _onEndPickerChange(value, formattedValue) {
+    _onEndPickerChange(value) {
         let newVoucher = this.state.voucher;
-        let newEndDate = this.state.voucher.end_date;
-        newEndDate['value'] = value;
-        newEndDate['formattedValue'] = formattedValue;
-        newVoucher['end_date'] = newEndDate;
+        newVoucher['end_date'] = value;
         this.setState(newVoucher);
     }
 
@@ -255,7 +241,7 @@ class VoucherEdit extends React.Component {
                                 <div className={this.getClassName('max_claim') + ' form-group'}>
                                     <label className=" control-label">Max Claim </label>
                                     <div  >
-                                        <input type="number" onChange={this._onChange}  value={this.state.voucher.max_claim}
+                                        <input type="number" onChange={this._onChange} value={this.state.voucher.max_claim}
                                             name="max_claim" placeholder="1" min="1" className="form-control" />
                                         {this.renderErrors(this.props.getValidationMessages('max_claim'))}
                                     </div>
@@ -264,22 +250,25 @@ class VoucherEdit extends React.Component {
 
                             <div className={this.getClassName('start_date') + ' form-group col-lg-6'}>
                                 <label className="font-normal">Start date</label>
-                                <DatePicker id="start_date"
-                                    name="start_date"
-                                    value={this.state.voucher.start_date.value}
-                                    onChange={this._onStartPickerChange}
-                                    />
-                                {this.renderErrors(this.props.getValidationMessages('start_date'))}
+                                <div>
+                                    <DatePicker
+                                        name="start_date"
+                                        className="form-control"
+                                        selected={this.state.voucher.start_date}
+                                        onChange={this._onStartPickerChange} />
+                                    {this.renderErrors(this.props.getValidationMessages('start_date'))}
+                                </div>
                             </div>
                             <div className={this.getClassName('end_date') + ' form-group col-lg-6'}>
                                 <label className="font-normal">End date</label>
-
-                                <DatePicker id="end_date"
-                                    name="end_date"
-                                    value={this.state.voucher.end_date.value}
-                                    onChange={this._onEndPickerChange}
-                                    />
-                                {this.renderErrors(this.props.getValidationMessages('end_date'))}
+                                <div>
+                                    <DatePicker
+                                        name="end_date"
+                                        className="form-control"
+                                        selected={this.state.voucher.end_date}
+                                        onChange={this._onEndPickerChange} />
+                                    {this.renderErrors(this.props.getValidationMessages('end_date'))}
+                                </div>
                             </div>
 
                             <div className="form-group ">
