@@ -69,12 +69,10 @@ class UserEdit extends React.Component {
         this.setState({
             user: this.props.user
         });
-        console.log(this.props.user);
     }
 
     _submitHandler(e) {
         e.preventDefault();
-        console.log(this.state.user);
         this.props.validate(error => {
             if (!error) {
                 this.updateUser();
@@ -101,7 +99,7 @@ class UserEdit extends React.Component {
                 Accept: 'application/json',
                 Authorization: 'Bearer ' + token
             }
-        }).put('/api/users/'+this.state.user.id, this.state.user).then(response => {
+        }).put('/api/users/' + this.state.user.id, this.state.user).then(response => {
             let swal = this.state.swal;
             if (response.data.error) {
                 swal.title = 'Gagal';
@@ -189,7 +187,7 @@ class UserEdit extends React.Component {
                                     <label className="  control-label">Full Name </label>
                                     <div>
                                         <input type="text" name="name"
-                                        value={this.state.user.name} onChange={this._onChange}
+                                            value={this.state.user.name} onChange={this._onChange}
                                             placeholder="Full Name" className="form-control" />
                                         {this.renderErrors(this.props.getValidationMessages('name'))}
                                     </div>
@@ -201,7 +199,7 @@ class UserEdit extends React.Component {
                                     <div>
                                         <input type="password" name="password" onChange={this._onChange}
                                             placeholder="Leave it empty if you don't want to change password" className="form-control" />
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -210,7 +208,7 @@ class UserEdit extends React.Component {
                                     <label className="  control-label">Email </label>
                                     <div>
                                         <input type="email" name="email" onChange={this._onChange}
-                                        value={this.state.user.email}
+                                            value={this.state.user.email}
                                             placeholder="name@gmail.com" className="form-control" />
                                         {this.renderErrors(this.props.getValidationMessages('email'))}
                                     </div>
