@@ -34,7 +34,7 @@ class ApiResetPasswordController extends Controller
     public function resetPwd(Request $request)
     {
         $this->validate($request, $this->fieldRules(), $this->validationErrorMessages());
-        $user = User::where('email', '=', $request->email)->first();
+        $user = User::where('email', '=', $request->get('email'))->first();
 
         $response = $this->broker()->reset(
             $this->credentials($request), function ($user, $password) {

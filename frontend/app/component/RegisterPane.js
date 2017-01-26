@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
 import autoBind from 'react-autobind';
-import cookie from 'react-cookie';
 import strategy from 'react-validatorjs-strategy';
 import SweetAlert from 'sweetalert-react';
 import validation from 'react-validation-mixin';
@@ -14,56 +13,56 @@ import backend from '../configs/backend';
 import frontend from '../configs/frontend';
 
 class RegisterPane extends React.Component {
-	constructor(props){
+    constructor(props){
         super(props);
         autoBind(this);
 
         this.validatorTypes = strategy.createSchema(
-            // First parameter is a list of rules for each element name
-            {
+                // First parameter is a list of rules for each element name
+            { 
                 name: 'required',
                 email: 'required|email',
                 password: 'required|min:6'
             },
             {
-                "required.email": "Email is required to be your login username!"
+                'required.email': 'Email is required to be your login username!'
             }
-            
-        );
+                
+            );
         this.state = {
-            name : "", email: "", password: "",
+            name : '', email: '', password: '',
             loading: false, 
             errors: {},
             alert_show: false,
-            alert_title: "",
-            alert_message: "",
-            alert_type: "info",
+            alert_title: '',
+            alert_message: '',
+            alert_type: 'info',
             alert_confirm_button: true,
             payment : {}
-        }
+        };
     }
-    _create () {
+    _create() {
         this.setState({
             alert_show: true,
-            alert_title: "Please Wait...",
-            alert_type: "info",
+            alert_title: 'Please Wait...',
+            alert_type: 'info',
             alert_confirm_button: false,
-            alert_message: "Please wait, we are registering your user account."
+            alert_message: 'Please wait, we are registering your user account.'
         });
 
         return $.ajax({
-        url: backend.url + '/api/auth/register', 
-        type: 'POST',
-        data: {
-            name : this.state.name,
-            password: this.state.password,
-            password_confirmation : this.state.password,
-            email: this.state.email
-        },
-        beforeSend: function () {
-            this.setState({loading: true, alert_show: true});
-        }.bind(this)
-        })
+            url: backend.url + '/api/auth/register', 
+            type: 'POST',
+            data: {
+                name : this.state.name,
+                password: this.state.password,
+                password_confirmation : this.state.password,
+                email: this.state.email
+            },
+            beforeSend: function () {
+                this.setState({loading: true, alert_show: true});
+            }.bind(this)
+        });
     }
     _onSubmit(e){
         e.preventDefault();
@@ -76,28 +75,28 @@ class RegisterPane extends React.Component {
                 var xhr = register._create();
                 xhr.done(register._onSuccess)
                 .fail(register._onError)
-                .always(register.hideLoading)
+                .always(register.hideLoading);
             }else{
                 console.log(error);
             }
         });
     }
-    _onSuccess (data) {
+    _onSuccess(data) {
         console.log(data);
-        console.log("success");
+        console.log('success');
         if(data.code == 200){
             this.setState({
                 alert_show: true,
-                alert_title: "Success",
-                alert_type: "success",
+                alert_title: 'Success',
+                alert_type: 'success',
                 alert_confirm_button: true,
                 alert_message: data.message
             });
         }else {
             this.setState({
                 alert_show: true,
-                alert_title: "Error",
-                alert_type: "error",
+                alert_title: 'Error',
+                alert_type: 'error',
                 alert_confirm_button: true,
                 alert_message: data.message
             });
@@ -106,25 +105,25 @@ class RegisterPane extends React.Component {
     getValidatorData() {
         return this.state;
     }  
-    _onError (data) {
+    _onError(data) {
         console.log(data);
-        console.log("error");
+        console.log('error');
         this.setState({
             alert_show: true,
-            alert_title: "Error",
-            alert_type: "error",
+            alert_title: 'Error',
+            alert_type: 'error',
             alert_confirm_button: true,
             alert_message: data.message
         });
     }
-    _onChange (e) {
+    _onChange(e) {
         var state = {};
         state[e.target.name] =  $.trim(e.target.value);
         this.setState(state);
     }
-	renderList (key){
-		return <ProductRow name={this.state.products[key].name} productlist={this.state.products[key].products} key={this.state.products[key].id} />
-	}
+    renderList(key){
+        return <ProductRow name={this.state.products[key].name} productlist={this.state.products[key].products} key={this.state.products[key].id} />;
+    }
     activateValidation(e) {
         strategy.activateRule(this.validatorTypes, e.target.name);
     }
@@ -138,8 +137,8 @@ class RegisterPane extends React.Component {
         return this.props.isValid(field) ? '' : 'has-error';
     }
 
-	render (){
-		return (
+    render(){
+        return (
              <div className="ibox-content">
              <div className="row ">
                 
@@ -148,7 +147,7 @@ class RegisterPane extends React.Component {
                         <h3>Register to One Stop Clicking</h3>
                     </div>
                     <form className="m-t" ref="registerForm" onSubmit={this._onSubmit}>
-                        <div className={this.getClassName('email') + " form-group"}  >
+                        <div className={this.getClassName('email') + ' form-group'}  >
                             <input 
                                 type="text" 
                                 onChange={this._onChange} 
@@ -159,7 +158,7 @@ class RegisterPane extends React.Component {
                             />
                             {this.renderErrors(this.props.getValidationMessages('name'))}
                         </div>
-                        <div className={this.getClassName('email') + " form-group"}  >
+                        <div className={this.getClassName('email') + ' form-group'}  >
                             <input 
                                 type="email" 
                                 onChange={this._onChange} 
@@ -170,7 +169,7 @@ class RegisterPane extends React.Component {
                             />
                             {this.renderErrors(this.props.getValidationMessages('email'))}
                         </div>
-                        <div className={this.getClassName('password') + " form-group"}  >
+                        <div className={this.getClassName('password') + ' form-group'}  >
                             <input 
                                 type="password" 
                                 onChange={this._onChange} 
@@ -200,18 +199,18 @@ class RegisterPane extends React.Component {
                     type={this.state.alert_type}
                     showConfirmButton={this.state.alert_confirm_button}
                     onConfirm={() => { 
-                            this.setState({ alert_show: false });
-                            if(this.state.alert_type == "success"){
-                                window.location.href = frontend.url+"/#/login";
-                            }
-                        } 
+                        this.setState({ alert_show: false });
+                        if(this.state.alert_type == 'success'){
+                            window.location.href = frontend.url+'/#/login';
+                        }
+                    } 
                     }
                     onOutsideClick={() => this.setState({alert_show: false})}
                 />
              </div>
-		)
-	}
-};
+        );
+    }
+}
 
 RegisterPane = validation(strategy)(RegisterPane);
 export default RegisterPane;

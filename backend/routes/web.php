@@ -55,21 +55,25 @@ Route::get('/usercontroller/path', [
 Route::group(['middleware' => 'cors'], function () {
     Route::get('home/products', 'Api\ApiHomeController@getHome');
     Route::get('home/category/{id}/{page}', 'Api\ApiHomeController@getCategoryProducts');
+    Route::get('/api/search', 'Api\ApiSearchController@search');
+    Route::get('/api/get_categories', 'Api\ApiSearchController@getCategories');
 });
 
 Route::group(['middleware' => 'cors', 'prefix' => 'api'], function () {
+    //authentication 
     Route::post('auth/token', 'Api\ApiLoginController@authenticate');
     Route::post('auth/register', 'Api\ApiRegisterController@register');
     Route::post('auth/reset', 'Api\ApiResetPasswordController@resetPwd');
     Route::post('auth/refresh', 'Api\ApiLoginController@refreshToken');
+
+    Route::get('product/details/{id}', 'Api\ApiProductController@details');
 });
-Route::get('register/test', 'Api\ApiRegisterController@test');
+Route::get('test/api', 'Api\ApiTestController@index');
 
 Route::group(['middleware' => ['cors', 'auth:api'], 'prefix' => 'api'], function () {
     Route::get('getuserdetails', 'UserController@getUserDetails');
 
     Route::resource('product', 'Api\ApiProductController');
-    Route::get('product/details/{id}', 'Api\ApiProductController@details');
     Route::post('product/generatedownloadurl', 'Api\ApiProductDownloadController@generateDownloadUrl');
 
     Route::resource('category', 'Api\ApiCategoryController');
@@ -79,7 +83,7 @@ Route::group(['middleware' => ['cors', 'auth:api'], 'prefix' => 'api'], function
     Route::resource('paymentmethod', 'Api\ApiPaymentMethodController');
     Route::resource('payment', 'PaymentPaypalController');
     Route::post('payment', 'PaymentPaypalController@create');
-    Route::post('sumarypayment', 'PaymentPaypalController@createSumaryAction');
+    Route::post('sumarypayment', 'Api\Payment\ApiPaymentController@createSumaryAction');
 
 });
 
@@ -89,3 +93,6 @@ Route::get('paymentpaypal/callback', 'PaymentPaypalController@paymentResponse');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');
+
+
+

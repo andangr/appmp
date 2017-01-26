@@ -68,12 +68,10 @@ class UserNew extends React.Component {
 
     componentWillMount() {
         var token = cookie.load('token');
-        console.log(token);
     }
 
     _submitHandler(e) {
         e.preventDefault();
-        console.log(this.state.user);
         this.props.validate(error => {
             if (!error) {
                 this.createUser();

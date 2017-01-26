@@ -4,8 +4,8 @@ import SweetAlert from 'sweetalert-react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
 import axios from 'axios';
-import { FacebookLogin } from 'react-facebook-login-component';
-import { GoogleLogin } from 'react-google-login-component';
+import FacebookLogin from './helper/FacebookLogin';
+import GoogleLogin from './helper/GoogleLogin';
 
 import backend from '../configs/backend';
 import frontend from '../configs/frontend';
@@ -50,13 +50,13 @@ class SocialLoginPane extends React.Component {
     getGoogleUserData(access_token) {
         axios({
             method: 'GET',
-            url : 'https://www.googleapis.com/plus/v1/people/me?access_token='+access_token
+            url: 'https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token
         }).then(response => {
             console.log(response);
             this.setState({
                 user: response.data.displayName,
                 email: response.data.emails[0].value,
-                password : Math.random().toString(36).substring(7)
+                password: Math.random().toString(36).substring(7)
             });
             this.socialLogin();
         });
@@ -106,6 +106,7 @@ class SocialLoginPane extends React.Component {
                     version="v2.8"
                     class="facebook-login"
                     buttonText="Login With Facebook" />
+                <br />
                 <GoogleLogin socialId="312488365228-g2mcp8jg208naea308o2f4j1qd4th0bc.apps.googleusercontent.com"
                     class="google-login"
                     scope="profile email"
