@@ -19,6 +19,7 @@ import ProductPaymentThankyou from './component/ProductPaymentThankyou';
 import VouchermgPane from './component/vouchers/VouchermgPane';
 import ForgotPasswordPane from './component/ForgotPasswordPane';
 import UserMgPane from './component/users/UserMgPane';
+import SearchPane from './component/search/SearchPane';
  
 ReactDOM.render((
 	<Router history={hashHistory} >
@@ -27,6 +28,7 @@ ReactDOM.render((
 			<Route path="/category/:catid" component={CategoryPane}></Route>
 			<Route path="/details/:productid" component={ProductDetailsPane}></Route>
 			<Route path="/login" component={LoginPane}></Route>
+			<Route path="/search" component={SearchPane}></Route>
 			<Route path="/logout" component={Logout}></Route>
 			<Route path="/forgot_password" component={ForgotPasswordPane}></Route>
 			<Route path="/myroom" component={MyRoomPane}></Route>
