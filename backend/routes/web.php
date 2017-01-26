@@ -82,17 +82,14 @@ Route::group(['middleware' => ['cors', 'auth:api'], 'prefix' => 'api'], function
 
     Route::resource('paymentmethod', 'Api\ApiPaymentMethodController');
     Route::resource('payment', 'PaymentPaypalController');
-    Route::post('payment', 'PaymentPaypalController@create');
+    Route::post('payment/create', 'Api\Payment\ApiPaymentController@create');
     Route::post('sumarypayment', 'Api\Payment\ApiPaymentController@createSumaryAction');
 
 });
-
+Route::get('donebalance', 'Api\Payment\ApiPaymentController@doneBalanceAction');
 Route::get('product/download', 'Api\ApiProductDownloadController@downloadAction');
 Route::get('paymentpaypal/callback', 'PaymentPaypalController@paymentResponse');
 
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');
-
-
-

@@ -25,6 +25,8 @@ class ApiProductDownloadController extends Controller
         $url = '';
         $response = array(
                     'code' => 400,
+                    'error' => true,
+                    'message' => 'You got some error. Please contact administrator.',
                     'downloadurl' => $url
                 );
         
@@ -38,11 +40,12 @@ class ApiProductDownloadController extends Controller
                     'id' => $id,
                     'token' => $token
                 );
-
-            $url = 'http://172.19.16.156:8000/product/download?'.http_build_query($params);
+            $baseDomain = config('backend.url');
+            $url = $baseDomain.'/product/download?'.http_build_query($params);
 
             $response = array(
                     'code' => 200,
+                    'error' => false,
                     'downloadurl' => $url
                 );
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
+import SweetAlert from 'sweetalert-react';
+import axios from 'axios';
 
 import GetProduct from './GetProduct';
 
@@ -45,30 +47,58 @@ class PaymentConfirmationPane extends React.Component {
         this.setState({ product: this.props.location.state.payment.data });
     }
     _create() {
-        var token = cookie.load('token');
-        return $.ajax({
-            url: backend.url + '/api/payment/create',
-            type: 'get',
-            data: {
-                id: this.state.product.product_id,
-                return_url: frontend.url + '/#/payment/thankyou/' + this.state.product.product_id,
-                pm_code: this.state.product.paymentcode,
-                target: '01',
-                vouchercode: this.state.product.vouchercode
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", "Bearer " + token);
-                this.setState({ loading: true });
-            }.bind(this)
-        })
+        
+
     }
     _onSubmit(e) {
         e.preventDefault();
-        console.log('ID ' + this.state.product.product_id + ' PM ' + this.state.product.paymentcode + ' VCODE ' + this.state.product.vouchercode);
-        var xhr = this._create();
-        xhr.done(this._onSuccess)
-            .fail(this._onError)
-            .always(this.hideLoading)
+        var token = cookie.load('token');
+
+        this.setState({
+            swal: {
+                show: true,
+                title: 'Please wait...',
+                text: 'We are preparing your payment',
+                type: 'info',
+                confirm_button: false,
+            }
+        });
+        var token = cookie.load('token');
+        axios.create({
+            baseURL: backend.url,
+            timeout: 1000,
+            headers: {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + token
+            }
+        }).post('/api/payment/create', {
+            id: this.state.product.product_id,
+            return_url: frontend.url + '/#/payment/thankyou/' + this.state.product.product_id,
+            pm_code: this.state.product.paymentcode,
+            target: '01',
+            vouchercode: this.state.product.vouchercode
+        }).then(response => {
+            let swal = this.state.swal;
+            if (response.data.error) {
+                swal.title = 'Error';
+                swal.type = 'error';
+                //swal.text = 'Something error on this page. Please contact administrator for any help';
+                swal.text = response.data.message;
+                this.setState({ swal: swal });
+            } else {
+                this.dismissSwal();
+                window.location = response.data.urlredirect;
+            }
+        }).catch(error => {
+            let swal = this.state.swal;
+
+            swal.confirm_button = true;
+            swal.title = 'Error';
+            swal.type = 'error';
+            swal.text = 'Please check your connection';
+            this.setState({ swal: swal });
+            console.log(error);
+        });
     }
     _onSuccess(data, replace) {
         console.log(data);
@@ -100,6 +130,14 @@ class PaymentConfirmationPane extends React.Component {
         var state = {};
         state[e.target.name] = $.trim(e.target.value);
         this.setState(state);
+    }
+    dismissSwal() {
+        let swal = this.state.swal;
+        swal.show = false;
+        this.setState({ swal: swal });
+        if (this.state.swal.type == 'success') {
+            location.reload();
+        }
     }
     render() {
         console.log(this.state);
@@ -192,6 +230,15 @@ class PaymentConfirmationPane extends React.Component {
 
 
                 </div>
+                <SweetAlert
+                    show={this.state.swal.show}
+                    title={this.state.swal.title}
+                    text={this.state.swal.text}
+                    type={this.state.swal.type}
+                    showConfirmButton={this.state.swal.confirm_button}
+                    onConfirm={this.dismissSwal}
+                    onOutsideClick={this.dismissSwal}
+                    />
 
             </div>
         )

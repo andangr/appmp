@@ -1,7 +1,7 @@
 import React from 'react';
 import autoBind from 'react-autobind';
 
-import TopNav from './layout/TopNav';
+import TopNav from './layout/topnav';
 import ProductPane from './component/ProductPane';
 
 import backend from './configs/backend';
