@@ -1,6 +1,8 @@
 import React from 'react';
 import autoBind from 'react-autobind';
 import cookie from 'react-cookie';
+import SweetAlert from 'sweetalert-react';
+import axios from 'axios';
 
 import GetProduct from './GetProduct';
 import SosmedShare from './helper/SosmedShare';
@@ -14,20 +16,29 @@ class ProductDownload extends React.Component {
         autoBind(this);
 
         this.state = {
-            id: '',
-            product_name: '',
-            package_code: '',
-            price: '',
-            description: '',
-            category_id: '',
-            sub_category_id: '',
-            compatibility: '',
-            urldownload: '',
-            status: '',
-            created: '',
-            imagePreviewUrl: '',
-            category: '',
-            subcategory: ''
+            product: {
+                id: '',
+                product_name: '',
+                package_code: '',
+                price: '',
+                description: '',
+                category_id: '',
+                sub_category_id: '',
+                compatibility: '',
+                urldownload: '',
+                status: '',
+                created: '',
+                imagePreviewUrl: '',
+                category: '',
+                subcategory: '',
+            },
+            swal: {
+                show: false,
+                title: '',
+                message: '',
+                type: 'info',
+                confirm_button: true,
+            }
         }
     }
     loadProductData(token, id) {
@@ -38,7 +49,7 @@ class ProductDownload extends React.Component {
             }
         })
             .then(result => result.json())
-            .then(resp => this.setState(resp))
+            .then(resp => this.setState({ product: resp.data }))
     }
     componentWillMount() {
         let token = cookie.load('token');
@@ -61,43 +72,60 @@ class ProductDownload extends React.Component {
     }
     download(e) {
         e.preventDefault();
+        var token = cookie.load('token');
+        axios.create({
+            baseURL: backend.url,
+            timeout: 1000,
+            headers: {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + token
+            }
+        }).post('/api/product/generatedownloadurl', {
+            id: this.props.params.id,
+            token: this.props.params.tokendownload
+        }).then(response => {
+            let swal = this.state.swal;
+            if (response.data.error) {
+                swal.title = 'Error';
+                swal.type = 'error';
+                swal.text = 'Something error on this page. Please contact administrator for any help';
+
+                this.setState({ swal: swal });
+            } else {
+                //this.dismissSwal();
+                console.log(response);
+                window.open(response.data.downloadurl, '_blank');
+            }
+        }).catch(error => {
+            let swal = this.state.swal;
+
+            swal.confirm_button = true;
+            swal.title = 'Error';
+            swal.type = 'error';
+            swal.text = 'Please check your connection';
+            this.setState({ swal: swal });
+            console.log(error);
+        });
+
+        /*e.preventDefault();
 
         var xhr = this._create();
         xhr.done(this._onSuccess)
             .fail(this._onError)
-            .always(this.hideLoading)
-    }
-    _onSuccess(data, replace) {
-        console.log(data);
-        console.log("success");
-        if (data.code == 200) {
-            window.open(data.downloadurl, "_blank");
-            //window.location = data.downloadurl;
-        } else if (data.code == 401) {
-            alert("Token expired, please re-login");
-        } else {
-            alert("you got some error, please contact administrator");
-        }
-
-    }
-    _onError(data) {
-        console.log(data);
-        console.log("error");
-        var message = "Failed to login";
-        var res = data.responseJSON;
-        if (res.message) {
-            message = data.responseJSON.message;
-        }
-        if (res.errors) {
-            this.setState({
-                errors: res.errors
-            });
-        }
+            .always(this.hideLoading)*/
     }
     _onChange(e) {
         var state = {};
         state[e.target.name] = $.trim(e.target.value);
         this.setState(state);
+    }
+    dismissSwal() {
+        let swal = this.state.swal;
+        swal.show = false;
+        this.setState({ swal: swal });
+        if (this.state.swal.type == 'success') {
+            location.reload();
+        }
     }
     render() {
         console.log(this.state);
@@ -116,14 +144,14 @@ class ProductDownload extends React.Component {
                                 </div>
                                 <div className="ibox-content  text-center">
                                     <div className="row text-center">
-                                        <h2 className="font-bold m-b-xs">{this.state.product_name}</h2>
+                                        <h2 className="font-bold m-b-xs">{this.state.product.product_name}</h2>
                                         <div className="col-md-4  text-center">
                                         </div>
                                         <div className="col-md-4  font-bold m-b-xs text-center">
 
 
                                             <div className="m-b-sm">
-                                                <img src={this.state.imagePreviewUrl} className="img-responsive" />
+                                                <img src={this.state.product.imagePreviewUrl} className="img-responsive" />
 
                                             </div>
                                             <p className="font-bold">Click download button below </p>
@@ -146,6 +174,15 @@ class ProductDownload extends React.Component {
                     </div>
 
                 </div>
+                <SweetAlert
+                    show={this.state.swal.show}
+                    title={this.state.swal.title}
+                    text={this.state.swal.text}
+                    type={this.state.swal.type}
+                    showConfirmButton={this.state.swal.confirm_button}
+                    onConfirm={this.dismissSwal}
+                    onOutsideClick={this.dismissSwal}
+                    />
             </div>
         )
     }

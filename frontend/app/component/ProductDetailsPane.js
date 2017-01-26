@@ -59,7 +59,7 @@ class ProductDetails extends React.Component {
     }
 
     render() {
-        const shareUrl = location.protocol + "//" + window.location.host + "/#/product/detail/" + this.props.params.id;
+        const shareUrl = location.protocol + "//" + window.location.host + "/#/product/detail/" + this.props.params.productid;
         const title = "What an awesome product. Get it now!!! or explore u'r fav book, movie, music, & app here.";
         return (
             <div className="col-lg-12">
