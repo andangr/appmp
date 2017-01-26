@@ -110,10 +110,11 @@ class GetProduct extends React.Component {
             if (response.data.error) {
                 swal.title = 'Error';
                 swal.type = 'error';
-                swal.text = 'Something error on this page. Please contact administrator for any help';
+                //swal.text = 'Something error on this page. Please contact administrator for any help';
                 swal.text = response.data.message;
                 this.setState({ swal: swal });
             } else {
+                this.dismissSwal();
                 hashHistory.push({
                     pathname: '/confirmation',
                     query: { test: 0 },
@@ -139,6 +140,14 @@ class GetProduct extends React.Component {
         var state = {};
         state[e.target.name] = $.trim(e.target.value);
         this.setState(state);
+    }
+    dismissSwal() {
+        let swal = this.state.swal;
+        swal.show = false;
+        this.setState({ swal: swal });
+        if (this.state.swal.type == 'success') {
+            location.reload();
+        }
     }
     render() {
         return (
@@ -244,6 +253,15 @@ class GetProduct extends React.Component {
                         <Button onClick={this.closeLogin}>Close</Button>
                     </Modal.Footer>
                 </Modal>
+                <SweetAlert
+                    show={this.state.swal.show}
+                    title={this.state.swal.title}
+                    text={this.state.swal.text}
+                    type={this.state.swal.type}
+                    showConfirmButton={this.state.swal.confirm_button}
+                    onConfirm={this.dismissSwal}
+                    onOutsideClick={this.dismissSwal}
+                    />
             </div>
         )
     }

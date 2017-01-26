@@ -28,7 +28,11 @@ class ApiPaymentController extends Controller
 
         $validator = Validator::make($request->all(), $this->fieldRules());
         if ($validator->fails()) {
-            return "Incomplete parameters";
+            return array (
+                'code' => '200',
+                'error' => true,
+                'message'   => 'Invalid parameters ',
+            );
         }
 
         $transactionData = new TransactionData;
@@ -46,14 +50,18 @@ class ApiPaymentController extends Controller
         $detailsData = $transactionData->getDetailsData();
 
         if($detailsData['error']){
-            return "Invalid parameters ";   
+            return array (
+                'code' => '200',
+                'error' => true,
+                'message'   => 'Product Not Found',
+            );  
         }
         /* -- end -- */
 
         /* start normalize price */
         $normalPrice = $transactionData->normalizePrice();
         if($normalPrice['error']){
-            return "data error ".json_encode($normalPrice);   
+            return $normalPrice;   
         }
         /* -- end of normalize price -- */
 
@@ -73,6 +81,7 @@ class ApiPaymentController extends Controller
 	
         $response = array (
                 'code' => '200',
+                'error' => false,
                 'message'   => 'Get sumary payment success.',
                 'data' => $aDataResponse
 
@@ -94,7 +103,72 @@ class ApiPaymentController extends Controller
             'pm_code' => 'required',
             'target' => 'required' 
         ];
-    }  
+    }
+
+    /**
+    * Create Summary Payment
+     * @return array
+     * @param Request $request
+     *
+     */
+    public function create(Request $request) 
+    {
+        $input = $request->input();
+
+        $validator = Validator::make($request->all(), $this->fieldRules());
+        if ($validator->fails()) {
+            return array (
+                'code' => '200',
+                'error' => true,
+                'message'   => 'Invalid parameters ',
+            );
+        }
+
+        $transactionData = new TransactionData;
+        $transactionData->product_id = $request->input('id');
+        $transactionData->payment_method = $request->input('pm_code');
+        $transactionData->payment_target = $request->input('target');
+        $transactionData->voucher_code = $request->input('vouchercode');
+        $transactionData->url_callback = $request->input('return_url');
+        
+        if($transactionData->payment_target !== '02'){
+            $transactionData->product_id = (int)$transactionData->product_id;
+        } 
+
+        /* get product or voucher details data */
+        $detailsData = $transactionData->getDetailsData();
+
+        if($detailsData['error']){
+            return array (
+                'code' => '200',
+                'error' => true,
+                'message'   => 'Product Not Found',
+            );  
+        }
+        /* -- end -- */
+
+        /* start normalize price */
+        $normalPrice = $transactionData->normalizePrice();
+        if($normalPrice['error']){
+            return $normalPrice;   
+        }
+        /* -- end of normalize price -- */
+
+        $response = $transactionData->_balancePaymentAction();
+
+        return $response;
+    }
+    public function doneBalanceAction(Request $request){
+        
+        $token =$request->input('token');
+        $trans_payment = TransPayment::where('token', $token)->firstOrFail();
+
+        $urlCallback = $trans_payment->url_callback;
+        $token = $trans_payment->token;
+
+        return redirect($urlCallback.'?token='.$token.'&success=true');
+
+    }
 
 }
 

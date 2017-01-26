@@ -9,104 +9,104 @@ import frontend from '../configs/frontend';
 
 
 class ProductDownload extends React.Component {
-	constructor(props){
+    constructor(props) {
         super(props);
         autoBind(this);
 
         this.state = {
-            "id": 0,
-            "product_name": "",
-            "package_code": "",
-            "price": "",
-            "description": "",
-            "category_id": 4,
-            "sub_category_id": 0,
-            "compatibility": "",
-            "urldownload": "",
-            "status": "",
-            "created": "",
-            "imagePreviewUrl": "",
-            "category": "",
-            "subcategory": ""
+            id: '',
+            product_name: '',
+            package_code: '',
+            price: '',
+            description: '',
+            category_id: '',
+            sub_category_id: '',
+            compatibility: '',
+            urldownload: '',
+            status: '',
+            created: '',
+            imagePreviewUrl: '',
+            category: '',
+            subcategory: ''
         }
     }
-    loadProductData(token, id){
-		fetch( backend.url +`/api/product/details/`+id, { 
-                headers: {
-                    'Authorization': 'Bearer '+token
-                }
-            })
-			.then(result=>result.json())
-			.then(resp=>this.setState(resp))
-        
-	}
+    loadProductData(token, id) {
+        console.log(id + ' download ' + token);
+        fetch(backend.url + `/api/product/details/` + id, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(result => result.json())
+            .then(resp => this.setState(resp))
+    }
     componentWillMount() {
-        var token = cookie.load('token');
-		this.loadProductData(token, this.props.params.id)
-        console.log(this.props.params.id +' == '+ this.props.params.tokendownload);
-	}
-    _create () {
+        let token = cookie.load('token');
+        let id = this.props.params.id;
+        this.loadProductData(token, id);
+    }
+    _create() {
         var token = cookie.load('token');
         return $.ajax({
-        url: backend.url + '/api/product/generatedownloadurl',
-        type: 'POST',
-        data: {
-            id : this.props.params.id, token : this.props.params.tokendownload
-        },
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Bearer " + token);
-            this.setState({loading: true});
-        }.bind(this)
+            url: backend.url + '/api/product/generatedownloadurl',
+            type: 'POST',
+            data: {
+                id: this.props.params.id, token: this.props.params.tokendownload
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+                this.setState({ loading: true });
+            }.bind(this)
         })
     }
-    download(e){
+    download(e) {
         e.preventDefault();
-        
+
         var xhr = this._create();
         xhr.done(this._onSuccess)
-        .fail(this._onError)
-        .always(this.hideLoading)
+            .fail(this._onError)
+            .always(this.hideLoading)
     }
-    _onSuccess (data, replace) {
+    _onSuccess(data, replace) {
         console.log(data);
         console.log("success");
-        if(data.code == 200){
+        if (data.code == 200) {
             window.open(data.downloadurl, "_blank");
             //window.location = data.downloadurl;
-        } else if(data.code == 401) {
+        } else if (data.code == 401) {
             alert("Token expired, please re-login");
         } else {
             alert("you got some error, please contact administrator");
         }
-        
+
     }
-    _onError (data) {
+    _onError(data) {
         console.log(data);
         console.log("error");
-        var message = "Failed to login"; 
+        var message = "Failed to login";
         var res = data.responseJSON;
-        if(res.message) {
-        message = data.responseJSON.message;
+        if (res.message) {
+            message = data.responseJSON.message;
         }
-        if(res.errors) {
-        this.setState({
-            errors: res.errors
-        });
+        if (res.errors) {
+            this.setState({
+                errors: res.errors
+            });
         }
     }
-    _onChange (e) {
+    _onChange(e) {
         var state = {};
-        state[e.target.name] =  $.trim(e.target.value);
+        state[e.target.name] = $.trim(e.target.value);
         this.setState(state);
     }
-	render (){
-        
-        const shareUrl = location.protocol+"//"+window.location.host+"/#/product/detail/"+this.props.params.id;
+    render() {
+        console.log(this.state);
+        const shareUrl = location.protocol + "//" + window.location.host + "/#/product/detail/" + this.props.params.id;
         const title = "What an awesome product. Get it now!!! or explore u'r fav book, movie, music, & app here.";
 
-		return (
-             <div className="col-lg-9">
-                
+        return (
+            <div className="col-lg-9">
+
                 <div className="wrapper wrapper-content animated fadeInRight">
                     <div className="row">
                         <div className="col-lg-12">
@@ -120,17 +120,17 @@ class ProductDownload extends React.Component {
                                         <div className="col-md-4  text-center">
                                         </div>
                                         <div className="col-md-4  font-bold m-b-xs text-center">
-                                            
+
 
                                             <div className="m-b-sm">
-                                                <img src={this.state.imagePreviewUrl}  className="img-responsive"  />
-                                                
+                                                <img src={this.state.imagePreviewUrl} className="img-responsive" />
+
                                             </div>
                                             <p className="font-bold">Click download button below </p>
 
                                             <div className="text-center">
-                                                <button className="btn btn-success btn-sm" onClick={(e)=>this.download(e)}>
-                                                <i className="fa fa-download"></i> Download 
+                                                <button className="btn btn-success btn-sm" onClick={(e) => this.download(e)}>
+                                                    <i className="fa fa-download"></i> Download
                                                 </button>
                                             </div>
                                         </div>
@@ -144,11 +144,11 @@ class ProductDownload extends React.Component {
                         </div>
 
                     </div>
-                    
+
                 </div>
             </div>
-		)
-	}
+        )
+    }
 };
 
 export default ProductDownload;
