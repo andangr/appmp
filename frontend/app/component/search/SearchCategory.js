@@ -25,7 +25,7 @@ class SearchCategory extends React.Component {
     loadCategories() {
         axios({
             method: 'get',
-            url: backend.url + '/home/products',
+            url: backend.url + '/api/get_categories',
             headers: {
                 Accept: 'application/json'
             }
@@ -38,7 +38,7 @@ class SearchCategory extends React.Component {
 
     optionChange(e) {
         this.setState({ selectedOption: e.target.value });
-        this.props.changeHandler(this.state.selectedOption);
+        this.props.changeHandler(e.target.value);
     }
 
     renderOptions(key) {

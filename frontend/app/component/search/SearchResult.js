@@ -11,7 +11,11 @@ class SearchResult extends React.Component {
     }
 
     renderProduct(key) {
-        return <Products details={this.props.products[key]} name={this.props.products[key].product_name} key={this.props.products[key].id} />;
+        return <Products details={this.props.products[key]} name={this.props.products[key].product_name} key={key + 'prod-result'} />;
+    }
+
+    componentDidMount() {
+        console.log(this.props.products);
     }
 
     render() {

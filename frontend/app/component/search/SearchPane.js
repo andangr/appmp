@@ -41,6 +41,7 @@ class SearchPane extends React.Component {
         this.setState({
             category_id: cat_id
         });
+        console.log(cat_id);
     }
 
     keywordChanged() {

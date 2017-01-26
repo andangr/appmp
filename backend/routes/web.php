@@ -56,6 +56,7 @@ Route::group(['middleware' => 'cors'], function () {
     Route::get('home/products', 'Api\ApiHomeController@getHome');
     Route::get('home/category/{id}/{page}', 'Api\ApiHomeController@getCategoryProducts');
     Route::get('/api/search', 'Api\ApiSearchController@search');
+    Route::get('/api/get_categories', 'Api\ApiSearchController@getCategories');
 });
 
 Route::group(['middleware' => 'cors', 'prefix' => 'api'], function () {
