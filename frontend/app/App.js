@@ -21,7 +21,7 @@ class App extends React.Component {
         };
 
     }
-    
+
     componentWillMount() {
         fetch(backend.url + '/home/products')
             .then(result => result.json())
@@ -36,7 +36,7 @@ class App extends React.Component {
                 </nav>
 
                 <div id="page-wrapper" className="gray-bg">
-                    <div className="container">
+                    <div className="container-flux">
                         <div className="row ">
                             {this.props.children || <ProductPane />}
                         </div>
